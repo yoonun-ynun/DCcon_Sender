@@ -1,3 +1,5 @@
+import type { interaction } from '../Discord/types.js';
+
 export const Opcode = {
     DISPATCH: 0,
     HEARTBEAT: 1,
@@ -17,7 +19,7 @@ export type Opcode = (typeof Opcode)[keyof typeof Opcode];
 
 export interface Message {
     op: Opcode;
-    d?: Record<string, unknown>;
+    d?: Record<string, unknown> | interaction;
     s?: number;
     t?: string;
 }

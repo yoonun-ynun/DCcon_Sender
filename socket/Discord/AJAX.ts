@@ -1,12 +1,20 @@
+import type {
+    DiscordCommandPayload,
+    DiscordMessagePayload,
+    DiscordMessageBody,
+    interactionResponse,
+    editMessage,
+} from './Payloads.js';
+
 const base_url = 'https://discord.com/api';
+
 export async function createMessage(channel_id: string, body: DiscordMessageBody, files: File[]) {
-    files = files || [];
-    const url = base_url + `/channels/${channel_id}/messages`;
     const headers = {
         Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
         'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
     };
-
+    files = files || [];
+    const url = base_url + `/channels/${channel_id}/messages`;
     const form = new FormData();
     const payload: DiscordMessagePayload = { ...body, attachments: [] };
     for (let i = 0; i < files.length; i++) {
@@ -24,6 +32,61 @@ export async function createMessage(channel_id: string, body: DiscordMessageBody
         headers: headers,
         body: form,
     };
+    return await sender(url, option);
+}
+
+export async function createGlobalCommand(body: DiscordCommandPayload) {
+    const headers = {
+        Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+        'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+        'Content-Type': 'application/json',
+    };
+    const url = base_url + `/applications/${process.env['APPLICATION_ID']}/commands`;
+    const option = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+    };
+    return await sender(url, option);
+}
+
+export async function createInteractionResponse(
+    interaction_id: string,
+    interaction_token: string,
+    body: interactionResponse,
+) {
+    const headers = {
+        Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+        'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+        'Content-Type': 'application/json',
+    };
+    const url = base_url + `/interactions/${interaction_id}/${interaction_token}/callback`;
+    const option = {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+    };
+    return await sender(url, option);
+}
+
+export async function editInteractionResponse(
+    application_id: string,
+    interaction_token: string,
+    body: editMessage,
+) {
+    const url = base_url + `/webhooks/${application_id}/${interaction_token}/messages/@original`;
+    const option = {
+        method: 'PATCH',
+        headers: {
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+    };
+    return await sender(url, option);
+}
+
+async function sender(url: string, option: Record<string, unknown>) {
     try {
         const response = await fetch(url, option);
         if (response.status === 204) {
@@ -45,57 +108,4 @@ export async function createMessage(channel_id: string, body: DiscordMessageBody
             message: message,
         };
     }
-}
-
-interface DiscordMessageBody {
-    content?: string;
-    nonce?: string | number;
-    tts?: boolean;
-    embeds?: object[];
-    allowed_mentions?: {
-        parse?: ('users' | 'roles' | 'everyone')[];
-        roles?: string[];
-        users?: string[];
-        replied_user?: boolean;
-    };
-    message_reference?: {
-        type: 0 | 1;
-        message_id?: string;
-        channel_id?: string;
-        guild_id?: string;
-        fail_if_not_exists?: boolean;
-    };
-    components?: object[];
-    sticker_ids?: string[];
-    enforce_nonce?: boolean;
-    poll?: {
-        question: {
-            text: string;
-        };
-        answers: {
-            answer_id: number;
-            poll_media: {
-                text: string;
-            };
-        }[];
-        /** ISO 8601 timestamp, use Date.toISOString() */
-        expiry: string;
-        allow_multiselect: boolean;
-        layout_type: number;
-        results?: {
-            is_finalized: boolean;
-            answer_counts: {
-                id: number;
-                count: number;
-                me_voted: boolean;
-            }[];
-        };
-    };
-}
-
-interface DiscordMessagePayload extends DiscordMessageBody {
-    attachments: {
-        id: number;
-        filename: string;
-    }[];
 }
