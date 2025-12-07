@@ -3,6 +3,7 @@ const ALLOWED_HOSTS = ['dcimg5.dcinside.com'];
 export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const u = searchParams.get('u');
+    const e = searchParams.get('e');
     if (!u) return new Response(null, { status: 400 });
 
     const targetUrl = `https:${u}`;
@@ -32,7 +33,8 @@ export async function GET(req) {
     }
 
     const buf = await upstream.arrayBuffer();
-    const ct = upstream.headers.get('content-type') ?? 'image/png';
+    let ct = upstream.headers.get('content-type') ?? 'image/png';
+    if (e) ct = `image/${e}`;
     const len = String(buf.byteLength);
     console.log(ct);
 

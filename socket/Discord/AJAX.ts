@@ -86,6 +86,18 @@ export async function editInteractionResponse(
     return await sender(url, option);
 }
 
+export async function removeInteractionResponse(application_id: string, interaction_token: string) {
+    const url = base_url + `/webhooks/${application_id}/${interaction_token}/messages/@original`;
+    const option = {
+        method: 'DELETE',
+        headers: {
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+    };
+    return await sender(url, option);
+}
+
 async function sender(url: string, option: Record<string, unknown>) {
     try {
         const response = await fetch(url, option);

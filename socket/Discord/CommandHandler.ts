@@ -1,5 +1,10 @@
 import { type Message } from '../connection/Message.js';
-import { createGlobalCommand, createInteractionResponse, editInteractionResponse } from './AJAX.js';
+import {
+    createGlobalCommand,
+    createInteractionResponse,
+    editInteractionResponse,
+    removeInteractionResponse,
+} from './AJAX.js';
 import type { applicationCommandDataStructure, interaction } from './types.js';
 import { getList } from '../DataBase/query.js';
 
@@ -19,6 +24,33 @@ export async function handler(message: Message) {
             name: 'list',
             description: '추가한 디시콘 목록을 확인합니다.',
             type: 1,
+        })
+            .then((res) => {
+                if (res?.ok !== true) {
+                    console.log(res?.message);
+                    return;
+                }
+                console.log('명령어 설정 완료');
+            })
+            .catch(() => console.error('명령어 설정에 실패하였습니다.'));
+        createGlobalCommand({
+            name: 'select',
+            description: '특정 디시콘을 idx, selector를 사용해서 전송합니다.',
+            type: 1,
+            options: [
+                {
+                    type: 3,
+                    name: 'idx',
+                    description: '해당 디시콘의 idx 값을 넣어주세요',
+                },
+                {
+                    type: 4,
+                    name: 'selector',
+                    description: '몇번째 콘을 가져올건지 입력 해 주세요',
+                    min_value: 1,
+                    max_value: 100,
+                },
+            ],
         })
             .then((res) => {
                 if (res?.ok !== true) {
@@ -80,27 +112,72 @@ async function handleInteraction(message: Message) {
         throw new Error('Interaction user not found');
     }
     if (command_name === 'list') {
-        await sendList(
-            interaction_id,
-            interaction_token,
-            user_id,
-            user_name,
-            avatar_url,
-            application_id,
-        );
+        await sendList(interaction_token, user_id, user_name, avatar_url, application_id);
+    }
+    if (command_name === 'select') {
+        const data = interaction.data as applicationCommandDataStructure;
+        const options = data.options ?? [];
+        let idx: string = '';
+        let selector: number = 0;
+        options.forEach((item) => {
+            if (item.name === 'idx') idx = item.value as string;
+            if (item.name === 'selector') selector = item.value as number;
+        });
+        await sendDCcon(idx, selector, interaction_token, user_name, avatar_url, application_id);
     }
 }
 
+async function sendDCcon(
+    idx: string,
+    selector: number,
+    interaction_token: string,
+    user_name: string,
+    avatar_link: string,
+    application_id: string,
+) {
+    if (idx === '' || selector === 0) {
+        await removeInteractionResponse(application_id, interaction_token);
+        return;
+    }
+    const temp = await fetch('http://localhost:3000/api/info', {
+        method: 'POST',
+        body: JSON.stringify({ idx: idx }),
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    const info = (await temp.json()) as {
+        title: string;
+        description: string;
+        main_img: string;
+        idx: string;
+        path: { addr: string; ext: string }[];
+    };
+    const path = info.path[selector - 1];
+    const embed = {
+        author: {
+            name: user_name,
+            icon_url: avatar_link,
+        },
+        image: {
+            url: `${process.env['AUTH_URL']}/api/img?u=${path.addr}&e=${path.ext}`,
+            width: 200,
+            height: 200,
+        },
+    };
+    const res = await editInteractionResponse(application_id, interaction_token, {
+        embeds: [embed],
+    });
+    console.log(res?.message);
+}
+
 async function sendList(
-    interaction_id: string,
     interaction_token: string,
     user_id: string,
     user_name: string,
     avatar_link: string,
     application_id: string,
 ) {
-    if (interaction_id === '' || user_id === '' || interaction_token === '')
-        throw Error('Field is empty');
+    if (user_id === '' || interaction_token === '') throw Error('Field is empty');
     const List: string[] = await getList(user_id);
     const info = (await Promise.all(
         List.map(async (item) => {
@@ -129,9 +206,10 @@ async function sendList(
             inline: false,
         };
     });
-    await editInteractionResponse(application_id, interaction_token, {
+    const result = await editInteractionResponse(application_id, interaction_token, {
         embeds: [
             {
+                description: '추가한 디시콘 목록을 확인합니다.',
                 author: {
                     name: user_name,
                     icon_url: avatar_link,
@@ -140,4 +218,5 @@ async function sendList(
             },
         ],
     });
+    console.log(result?.message);
 }
