@@ -86,6 +86,36 @@ export async function editInteractionResponse(
     return await sender(url, option);
 }
 
+export async function editInteractionResponseFile(
+    application_id: string,
+    interaction_token: string,
+    body: editMessage,
+    files: File[],
+) {
+    const url = base_url + `/webhooks/${application_id}/${interaction_token}/messages/@original`;
+    const form = new FormData();
+    body.attachments = [];
+    for (let i = 0; i < files.length; i++) {
+        body.attachments.push({
+            id: i,
+            filename: files[i].name,
+        });
+    }
+    console.log(body);
+    form.append('payload_json', JSON.stringify(body));
+    for (let i = 0; i < files.length; i++) {
+        form.append(`files[${i}]`, files[i]);
+    }
+    const option = {
+        method: 'PATCH',
+        headers: {
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+        },
+        body: form,
+    };
+    return await sender(url, option);
+}
+
 export async function removeInteractionResponse(application_id: string, interaction_token: string) {
     const url = base_url + `/webhooks/${application_id}/${interaction_token}/messages/@original`;
     const option = {

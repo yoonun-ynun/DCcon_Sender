@@ -3,6 +3,7 @@ import {
     createGlobalCommand,
     createInteractionResponse,
     editInteractionResponse,
+    editInteractionResponseFile,
     removeInteractionResponse,
 } from './AJAX.js';
 import type { applicationCommandDataStructure, interaction } from './types.js';
@@ -42,6 +43,35 @@ export async function handler(message: Message) {
                     type: 3,
                     name: 'idx',
                     description: '해당 디시콘의 idx 값을 넣어주세요',
+                },
+                {
+                    type: 4,
+                    name: 'selector',
+                    description: '몇번째 콘을 가져올건지 입력 해 주세요',
+                    min_value: 1,
+                    max_value: 100,
+                },
+            ],
+        })
+            .then((res) => {
+                if (res?.ok !== true) {
+                    console.log(res?.message);
+                    return;
+                }
+                console.log('명령어 설정 완료');
+            })
+            .catch(() => console.error('명령어 설정에 실패하였습니다.'));
+        createGlobalCommand({
+            name: 'profile',
+            description: '프로필에 추가한 디시콘을 index, selector를 사용해서 전송합니다.',
+            type: 1,
+            options: [
+                {
+                    type: 4,
+                    name: 'index',
+                    description: '몇번째 디시콘을 선택할건지 입력 해 주세요',
+                    min_value: 1,
+                    max_value: 25,
                 },
                 {
                     type: 4,
@@ -125,6 +155,49 @@ async function handleInteraction(message: Message) {
         });
         await sendDCcon(idx, selector, interaction_token, user_name, avatar_url, application_id);
     }
+    if (command_name === 'profile') {
+        const data = interaction.data as applicationCommandDataStructure;
+        const options = data.options ?? [];
+        let index: number = 0;
+        let selector: number = 0;
+        options.forEach((item) => {
+            if (item.name === 'index') index = item.value as number;
+            if (item.name === 'selector') selector = item.value as number;
+        });
+        await selectProfile(
+            index,
+            selector,
+            interaction_token,
+            user_name,
+            user_id,
+            avatar_url,
+            application_id,
+        );
+    }
+}
+
+async function selectProfile(
+    index: number,
+    selector: number,
+    interaction_token: string,
+    user_name: string,
+    user_id: string,
+    avatar_link: string,
+    application_id: string,
+) {
+    if (index === 0 || selector === 0) {
+        await removeInteractionResponse(application_id, interaction_token);
+        return;
+    }
+    const List: string[] = await getList(user_id);
+    const idx = List[index - 1];
+    if (idx === undefined) {
+        await editInteractionResponse(application_id, interaction_token, {
+            content: '해당하는 디시콘이 없습니다.',
+        });
+        return;
+    }
+    await sendDCcon(idx, selector, interaction_token, user_name, avatar_link, application_id);
 }
 
 async function sendDCcon(
@@ -153,21 +226,21 @@ async function sendDCcon(
         path: { addr: string; ext: string }[];
     };
     const path = info.path[selector - 1];
+    const url = `http://localhost:3000/api/img?u=${path.addr}&e=${path.ext}`;
+    const img_temp = await fetch(url);
+    const image: File = new File([await img_temp.blob()], 'main_image.' + path.ext);
     const embed = {
         author: {
             name: user_name,
             icon_url: avatar_link,
         },
         image: {
-            url: `${process.env['AUTH_URL']}/api/img?u=${path.addr}&e=${path.ext}`,
+            url: `attachment://main_image.${path.ext}`,
             width: 200,
             height: 200,
         },
     };
-    const res = await editInteractionResponse(application_id, interaction_token, {
-        embeds: [embed],
-    });
-    console.log(res?.message);
+    await editInteractionResponseFile(application_id, interaction_token, {}, [image]);
 }
 
 async function sendList(
