@@ -29,7 +29,7 @@ export async function PUT(req) {
 
     const user = await User.findOne({ user_id: user_id }, { list: 1 });
 
-    if (user.list.length >= 25) {
+    if (user && user.list.length >= 25) {
         return NextResponse.json({
             success: false,
             message: '최대 25개까지 추가가 가능합니다.',

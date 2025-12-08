@@ -1,5 +1,12 @@
 import WebSocket from 'ws';
-import { getSequence, sendHeartbeat, setAck, setSequence, stopHeartbeat } from './heartbeat.js';
+import {
+    getSequence,
+    sendHeartbeat,
+    sendSocket,
+    setAck,
+    setSequence,
+    stopHeartbeat,
+} from './heartbeat.js';
 import { Opcode, type Message } from './Message.js';
 import { handler } from '../Discord/CommandHandler.js';
 
@@ -40,6 +47,9 @@ function manageSocket(event: WebSocket.RawData) {
     if (command === Opcode.DISPATCH) {
         eventQueue.push(message);
         processQueueSync();
+    }
+    if (command === Opcode.HEARTBEAT) {
+        sendSocket(socket);
     }
     if (command === Opcode.DISPATCH && message.t === 'READY') {
         resumeGateway = (message.d as { resume_gateway_url: string }).resume_gateway_url;
