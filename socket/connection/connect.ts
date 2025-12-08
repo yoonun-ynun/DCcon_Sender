@@ -138,8 +138,8 @@ function reconnectSocket(isResume: boolean) {
         return;
     }
     isReconnecting = true;
-    cleanupSocket();
     stopHeartbeat();
+    cleanupSocket();
 
     setTimeout(() => {
         isReconnecting = false;
@@ -152,6 +152,10 @@ function reconnectSocket(isResume: boolean) {
             });
             handleConnect();
         } else {
+            setSequence(null);
+            eventQueue.splice(0);
+            pendingSessionId = null;
+            shouldResume = false;
             console.log('Reconnect to Discord');
             resumeGateway = null;
             startSocket();

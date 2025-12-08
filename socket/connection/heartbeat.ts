@@ -64,7 +64,7 @@ export function stopHeartbeat() {
     }
 }
 
-export function setSequence(s: number) {
+export function setSequence(s: number | null) {
     sequence = s;
 }
 
