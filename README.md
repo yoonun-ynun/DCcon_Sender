@@ -4,13 +4,13 @@ MongoDB must be running on your server.
 
 > Create a `.env` file in the project root.
 > ```dotenv
-> AUTH_SECRET={secret key for JWT token}
-> AUTH_URL={your domain url}
-> AUTH_DISCORD_ID={your discord bot OAuth2 client ID}
-> AUTH_DISCORD_SECRET={your discord bot OAuth2 client Secret}
-> DISCORD_TOKEN={your discord bot token}
-> APPLICATION_ID={your discord bot application id}
-> MONGO_URI={mongo_db uri}
+> AUTH_SECRET="{secret key for JWT token}"
+> AUTH_URL="{your domain url}"
+> AUTH_DISCORD_ID="{your discord bot OAuth2 client ID}"
+> AUTH_DISCORD_SECRET="{your discord bot OAuth2 client Secret}"
+> DISCORD_TOKEN="{your discord bot token}"
+> APPLICATION_ID="{your discord bot application id}"
+> MONGO_URI="{mongo_db uri}"
 > ```
 
 > Start Web Server
@@ -90,6 +90,6 @@ MongoDB must be running on your server.
 ├── middleware.js ___- auth.js___<br>
 ├── models<br>
 │&emsp;└── User.js ___- User schema___<br>
-└── store ___- store on local storage about user has con___<br>
+└── store ___- Store the cons user have in your local storage___<br>
 &emsp;&emsp;├── queryList.js ___- loop fetch using react-query___<br>
-&emsp;&emsp;└── storeList.js ___- save on local storage using zustand___<br>
+&emsp;&emsp;└── storeList.js ___- store on local storage using zustand___<br>
