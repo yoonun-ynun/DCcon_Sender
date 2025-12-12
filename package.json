@@ -1,43 +1,43 @@
 {
-  "name": "dccon_sender",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "build:socket": "tsc -p socket/tsconfig.json",
-    "start": "next start",
-    "start:socket": "node dist/socket/server.js"
-  },
-  "dependencies": {
-    "@eslint/js": "^9.39.1",
-    "@next/eslint-plugin-next": "^16.0.7",
-    "@tanstack/react-query": "^5.90.10",
-    "dotenv": "^17.2.3",
-    "file-saver": "^2.0.5",
-    "globals": "^16.5.0",
-    "jsdom": "^27.0.0",
-    "jszip": "^3.10.1",
-    "mongoose": "^8.19.2",
-    "next": "15.5.7",
-    "next-auth": "^5.0.0-beta.29",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "ws": "^8.18.3",
-    "zustand": "^5.0.8"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@types/react": "19.2.7",
-    "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.48.1",
-    "@typescript-eslint/parser": "^8.48.1",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.7",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.7.4",
-    "typescript": "^5.9.3"
-  }
+    "name": "dccon_sender",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "next dev --turbopack",
+        "build": "next build --turbopack",
+        "build:socket": "tsc -p socket/tsconfig.json",
+        "start": "next start",
+        "start:socket": "node dist/socket/server.js"
+    },
+    "dependencies": {
+        "@eslint/js": "^9.39.1",
+        "@next/eslint-plugin-next": "^16.0.7",
+        "@tanstack/react-query": "^5.90.10",
+        "dotenv": "^17.2.3",
+        "file-saver": "^2.0.5",
+        "globals": "^16.5.0",
+        "jsdom": "^27.0.0",
+        "jszip": "^3.10.1",
+        "mongoose": "^8.19.2",
+        "next": "^15.5.9",
+        "next-auth": "^5.0.0-beta.29",
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
+        "ws": "^8.18.3",
+        "zustand": "^5.0.8"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "@types/react": "19.2.7",
+        "@types/ws": "^8.18.1",
+        "@typescript-eslint/eslint-plugin": "^8.48.1",
+        "@typescript-eslint/parser": "^8.48.1",
+        "eslint": "^9.39.1",
+        "eslint-config-next": "^16.0.7",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.4",
+        "prettier": "^3.7.4",
+        "typescript": "^5.9.3"
+    }
 }
