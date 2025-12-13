@@ -4,7 +4,7 @@ import type {
     DiscordMessageBody,
     interactionResponse,
     editMessage,
-} from './Payloads.js';
+} from './interfaces/Payloads.js';
 
 const base_url = 'https://discord.com/api';
 
@@ -101,7 +101,6 @@ export async function editInteractionResponseFile(
             filename: files[i].name,
         });
     }
-    console.log(body);
     form.append('payload_json', JSON.stringify(body));
     for (let i = 0; i < files.length; i++) {
         form.append(`files[${i}]`, files[i]);

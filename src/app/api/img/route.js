@@ -36,7 +36,6 @@ export async function GET(req) {
     let ct = upstream.headers.get('content-type') ?? 'image/png';
     if (e) ct = `image/${e}`;
     const len = String(buf.byteLength);
-    console.log(ct);
 
     return new Response(Buffer.from(buf), {
         headers: {

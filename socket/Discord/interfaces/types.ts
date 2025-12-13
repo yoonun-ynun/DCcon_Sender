@@ -1,4 +1,5 @@
 import type { guildMember, user } from './primaryType.js';
+import type { Command_List } from './Payloads.js';
 
 export interface interaction {
     id: string;
@@ -27,7 +28,7 @@ export interface interaction {
 
 export interface applicationCommandDataStructure {
     id: string;
-    name: string;
+    name: Command_List;
     type: number;
     resolved: resolvedData;
     options: applicationCommandInteractionDataOption[];

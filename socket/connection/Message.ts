@@ -1,4 +1,4 @@
-import type { interaction } from '../Discord/types.js';
+import type { interaction } from '../Discord/interfaces/types.js';
 
 export const Opcode = {
     DISPATCH: 0,

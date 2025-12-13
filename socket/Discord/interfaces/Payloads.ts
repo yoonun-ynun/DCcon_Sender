@@ -44,6 +44,28 @@ export interface DiscordMessageBody {
     };
 }
 
+export type Command_List = 'list' | 'select' | 'profile';
+
+export interface CommandPayload {
+    name: Command_List;
+    user?: {
+        user_name?: string;
+        user_id: string;
+        avatar_link?: string;
+    };
+    application: {
+        application_id: string;
+    };
+    interaction: {
+        interaction_token: string;
+    };
+    select?: {
+        selectedCon?: number;
+        index?: string;
+        selector?: number;
+    };
+}
+
 export interface DiscordMessagePayload extends DiscordMessageBody {
     attachments: {
         id: number;
