@@ -121,6 +121,7 @@ function createCommand() {
                 type: 3,
                 name: 'idx',
                 description: '해당 디시콘의 idx 값을 넣어주세요',
+                required: true,
             },
             {
                 type: 4,
@@ -128,6 +129,7 @@ function createCommand() {
                 description: '몇번째 콘을 가져올건지 입력 해 주세요',
                 min_value: 1,
                 max_value: 100,
+                required: true,
             },
         ],
     })
@@ -150,6 +152,7 @@ function createCommand() {
                 description: '몇번째 디시콘을 선택할건지 입력 해 주세요',
                 min_value: 1,
                 max_value: 25,
+                required: true,
             },
             {
                 type: 4,
@@ -157,6 +160,7 @@ function createCommand() {
                 description: '몇번째 콘을 가져올건지 입력 해 주세요',
                 min_value: 1,
                 max_value: 100,
+                required: true,
             },
         ],
     })
