@@ -1,4 +1,3 @@
-//TODO: header token Refresh, access token Refresh, connect with socket process
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -131,7 +130,7 @@ export default function Frame({ CLIENT_ID }) {
                 getters.current = {
                     getSession: async () => {
                         const session = await getSession();
-                        return session.user;
+                        return session?.user;
                     },
                     getGuilds: async () => {
                         const guilds = await fetch('/api/embed/guilds', {

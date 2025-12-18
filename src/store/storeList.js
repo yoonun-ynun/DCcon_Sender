@@ -47,16 +47,28 @@ export const storeList = create(
     ),
 );
 
-export const storeChannel = create((set) => ({
-    guild_id: '',
-    channel_id: '',
-    add: (guildId, channelId) => {
+export const storeChannel = create((set, get) => ({
+    guild: { id: '', name: '' },
+    channel: { id: '', name: '' },
+    /**
+     * @param {{id:string, name: string}} guild
+     * @param {{id: string, name: string}} channel
+     */
+    set: (guild, channel) => {
         set(() => {
             return {
-                guild_id: guildId,
-                channel_id: channelId,
+                guild: guild,
+                channel: channel,
             };
         });
+    },
+    /**
+     *
+     * @returns {{guild: {id: string, name: string}, channel: {id: string, name: string}}}
+     */
+    get: () => {
+        const { guild, channel } = get();
+        return { guild, channel };
     },
 }));
 
