@@ -3,6 +3,7 @@ import { signIn, verifyEmbeddedProof } from '@/auth';
 import { connectDB } from '@/lib/mongodb';
 import Token from '@/models/Token';
 import { encode } from 'next-auth/jwt';
+import { encrypt } from '@/app/api/embed/crypter.js';
 
 export async function POST(req) {
     const { code, instanceId, cookieUsable } = await req.json();
@@ -26,13 +27,19 @@ export async function POST(req) {
         name: verified.username,
         image: verified.image,
     };
+
+    const access_token = encrypt(verified.access_token);
+    const refresh_token = encrypt(verified.refresh_token);
+
     await Token.findOneAndUpdate(
         { user_id: verified.user_id },
         {
             $setOnInsert: {
                 user_id: verified.user_id,
-                access_token: verified.access_token,
-                refresh_token: verified.refresh_token,
+            },
+            $set: {
+                access_token: access_token,
+                refresh_token: refresh_token,
                 expires_at: verified.expires_at,
             },
         },
@@ -43,7 +50,7 @@ export async function POST(req) {
         token: tokenPayload,
         secret: process.env.AUTH_SECRET,
         salt: 'embedded-token',
-        maxAge: 60 * 15,
+        maxAge: 60 * 30,
     });
 
     return NextResponse.json({ ok: true, embeddedToken });

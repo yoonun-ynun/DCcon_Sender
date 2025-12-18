@@ -47,6 +47,19 @@ export const storeList = create(
     ),
 );
 
+export const storeChannel = create((set) => ({
+    guild_id: '',
+    channel_id: '',
+    add: (guildId, channelId) => {
+        set(() => {
+            return {
+                guild_id: guildId,
+                channel_id: channelId,
+            };
+        });
+    },
+}));
+
 function fetchAdd(idx) {
     fetch('/api/controller', {
         method: 'PUT',

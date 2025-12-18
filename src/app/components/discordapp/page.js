@@ -1,7 +1,7 @@
 'use server';
 
-import Selector from '@/app/components/discordapp/selector.js';
+import Frame from '@/app/components/discordapp/frame.js';
 
 export default async function Page() {
-    return <Selector CLIENT_ID={process.env.AUTH_DISCORD_ID} />;
+    return <Frame CLIENT_ID={process.env.AUTH_DISCORD_ID} />;
 }
