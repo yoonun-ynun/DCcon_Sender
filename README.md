@@ -2,9 +2,23 @@
 
 MongoDB must be running on your server.
 
+
+### On Discord Bot Page
+> ```text
+> OAuth2 > Redirects:                           https://{ YOUR_DOMAIN }/api/auth/callback/discord <br>
+> Activities > Setting > Enable Activities:     turn on <br>
+> Activities > Setting > Supported Platforms:   check all <br>
+> Activities > URL Mappings > Root Mapping:     { YOUR_DOMAIN }/components/discordapp <br>
+> Installation > Default Install Settings:      Setting scope and permission you need
+> ```
+
+<br><br><br>
+
+### On your server
 > Create a `.env` file in the project root.
 > ```dotenv
-> AUTH_SECRET="{secret key for JWT token}"
+> AUTH_SECRET="{secret key for JWT token(you can use npx auth)}"
+> AUTH_KEY="{key for AES-256-GCM(encoded by hex)}"
 > AUTH_URL="{your domain url}"
 > AUTH_DISCORD_ID="{your discord bot OAuth2 client ID}"
 > AUTH_DISCORD_SECRET="{your discord bot OAuth2 client Secret}"
@@ -19,7 +33,8 @@ MongoDB must be running on your server.
 >>  npm run build
 >>  npm run start
 >> ```
->> Server will run on localhost:3000
+>> Server will run on localhost:3000 <br>
+> You need to reverse proxy for access from HTTP/HTTPS, I am use nginx for reverse proxy
 > 
 > Start Discord Server
 >> ```shell
@@ -27,7 +42,6 @@ MongoDB must be running on your server.
 >> npm run start:socket
 >> ```
 >> set discord bot status to online
-
 
 ## File Structure
 For discord bot<br>
@@ -40,9 +54,17 @@ For discord bot<br>
 ├── Discord
 │  ├── AJAX.ts                - HTTP Request
 │  ├── CommandHandler.ts      - handle discord interaction
-│  ├── Payloads.ts            - for interface
-│  ├── primaryType.ts         - for interface
-│  └── types.ts               - for interface
+│  ├── Commands
+│  │  ├── handler.ts          - handle Commands
+│  │  ├── selectProfile.ts    - send with profile value
+│  │  ├── sendDCcon.ts        - send with dccon index
+│  │  └── sendList.ts         - send added
+│  ├── Errors
+│  │  └── CommandError.ts     - Errors
+│  └── interfaces
+│      ├── Payloads.ts
+│      ├── primaryType.ts
+│      └── types.ts
 ├── connection
 │  ├── Message.ts             - for interface
 │  ├── connect.ts             - for Gateway API
@@ -65,12 +87,35 @@ For web server
 │  │  │     └── route.js
 │  │  ├── controller            - database controllers
 │  │  │  └── route.js           - processing for GET, POST, PUT, DELETE Request
+│  │  ├── embed                 - api for discord embedded app
+│  │  │  ├── crypter.js         - for encrypt
+│  │  │  ├── channels           - get channels about guild id
+│  │  │  │  └── route.js
+│  │  │  ├── cookie-test        - test cookie can saving
+│  │  │  │  └── route.js
+│  │  │  ├── guilds             - get union about user's guild and bot's guild
+│  │  │  │  └── route.js
+│  │  │  ├── login              - auth with JWT or Authorization header
+│  │  │  │  └── route.js
+│  │  │  ├── refresh            - refreshing token
+│  │  │  │  └── route.js
+│  │  │  ├── send               - send dccon about user's select
+│  │  │  │  └── route.js
+│  │  │  └── session            - get user's informagion
+│  │  │      └── route.js
 │  │  ├── img                   - proxy
 │  │  │  └── route.js
 │  │  └── info                  - response info API
 │  │     └── route.js
 │  ├── components               - for iframe
 │  │  ├── IframeOveray.js       - load iframe overlay
+│  │  ├── discordapp            - discord embedded app page
+│  │  │  ├── channels.js        - selector about to send channel
+│  │  │  ├── frame.js           - authing user and get user idendify
+│  │  │  ├── list.js            - listing about selected dccon image
+│  │  │  ├── page.js
+│  │  │  ├── selector.js        - select using dccon
+│  │  │  └── style.css          - style for embedded app
 │  │  └── info                  - page for iframe
 │  │     ├── Button.js          - Download, Add button
 │  │     ├── Image.js           - render image
