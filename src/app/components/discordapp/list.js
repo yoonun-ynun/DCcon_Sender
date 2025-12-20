@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { storeChannel } from '@/store/storeList.js';
 import { useState } from 'react';
+import Sending from '@/app/components/discordapp/sending.js';
 
 /**
  * @typedef {Object} DcconList
@@ -27,23 +28,35 @@ import { useState } from 'react';
  */
 export default function List({ data, getters }) {
     const [msg, setMsg] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const channel = storeChannel((s) => s.channel);
     if (!data || !data.path) {
         return <div></div>;
     }
 
     async function sender(addr) {
-        if (!getters?.send) {
-            setMsg('잠시후 시도해주세요');
-            return;
-        }
+        try {
+            setIsLoading(true);
+            if (!getters?.send) {
+                setMsg('잠시후 시도해주세요');
+                return;
+            }
 
-        const result = await getters.send(encodeURIComponent(addr), channel.id);
-        if (!result.ok) setMsg('전송 중 오류가 발생하였습니다.' + ` reason: ${result.reason}`);
+            const result = await getters.send(encodeURIComponent(addr), channel.id);
+            if (!result.ok) setMsg('전송 중 오류가 발생하였습니다.' + ` reason: ${result.reason}`);
+            setIsLoading(false);
+        } catch (e) {
+            setMsg('에러가 발생하였습니다.');
+        } finally {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 0);
+        }
     }
 
     return (
         <div>
+            {isLoading && <Sending />}
             {msg}
             <br />
             <div className={'imageWrap'}>
