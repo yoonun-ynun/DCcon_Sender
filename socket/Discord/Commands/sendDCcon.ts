@@ -33,9 +33,10 @@ export default async function sendDCcon(payload: CommandPayload) {
             '해당하는 디시콘 또는 이미지가 존재하지 않습니다.',
         );
     }
-    const url = `http://localhost:3000/api/img?u=${path.addr}&e=${path.ext}`;
+    const url = `http://localhost:3000/api/img?u=${path.addr}`;
     const img_temp = await fetch(url);
-    const image: File = new File([await img_temp.blob()], 'main_image.' + path.ext);
+    const ext = img_temp.headers.get('Content-Type')?.split('/')[1] ?? path.ext;
+    const image: File = new File([await img_temp.blob()], 'main_image.' + ext);
     await editInteractionResponseFile(
         payload.application.application_id,
         payload.interaction.interaction_token,

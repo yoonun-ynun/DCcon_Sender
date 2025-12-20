@@ -1,4 +1,4 @@
-import { decode, getToken } from 'next-auth/jwt';
+import { decode } from 'next-auth/jwt';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Token from '@/models/Token';
@@ -10,7 +10,10 @@ export async function POST(req) {
     if (cookieUsable) {
         const headerList = await headers();
         const cookieHeader = headerList.get('cookie');
-        const sessionToken = cookieHeader?.match(/__Secure-next-auth\.session-token=([^;]+)/)?.[1];
+        if (!cookieHeader)
+            return NextResponse.json({ ok: false, reason: 'no_cookie' }, { status: 401 });
+        const cookieList = parseCookies(cookieHeader);
+        const sessionToken = cookieList['__Secure-next-auth.session-token'];
 
         if (!sessionToken) {
             return NextResponse.json({ ok: false, reason: 'no_cookie' }, { status: 401 });
@@ -102,4 +105,18 @@ async function serverGuilds() {
     const guild_list = await res.json();
     if (!guild_list) return null;
     return guild_list.map((item) => ({ id: item.id, name: item.name }));
+}
+
+/**
+ * @param { string } cookieString
+ */
+function parseCookies(cookieString) {
+    const list = cookieString.split('; ');
+    const cookieList = Object.fromEntries(
+        list.map((item) => {
+            const [key, ...value] = item.split('=');
+            return [key, decodeURIComponent(value.join('='))];
+        }),
+    );
+    return cookieList;
 }

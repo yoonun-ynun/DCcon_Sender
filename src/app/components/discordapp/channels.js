@@ -101,40 +101,37 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
 
     return (
         <div>
-            <br />
-            <select name={'guild'} id={'guildList'} className={'selector'} onChange={setGuild}>
-                <option value={''} selected={guild.id === ''}>
-                    서버를 선택 해 주세요
-                </option>
-                {guildList.map((item, i) => {
-                    return (
-                        <option key={i} value={item.id} selected={item.id === guild.id}>
-                            {item.name}
-                        </option>
-                    );
-                })}
-            </select>
-            <select
-                name={'channel'}
-                id={'channelList'}
-                className={'selector'}
-                onChange={setChannel}
-            >
-                <option value={''} selected={channel.id === ''}>
-                    채널을 선택 해 주세요
-                </option>
-                {channelList.map((item, i) => {
-                    return (
-                        <option key={i} value={item.id} selected={item.id === channel.id}>
-                            {item.name}
-                        </option>
-                    );
-                })}
-            </select>
-            <br />
-            선택한 길드 ID: {guild.id}
-            <br />
-            선택한 채널 ID: {channel.id}
+            <div id={'selectorList'}>
+                <select name={'guild'} id={'guildList'} className={'selector'} onChange={setGuild}>
+                    <option value={''} selected={guild.id === ''}>
+                        서버를 선택 해 주세요
+                    </option>
+                    {guildList.map((item, i) => {
+                        return (
+                            <option key={i} value={item.id} selected={item.id === guild.id}>
+                                {item.name}
+                            </option>
+                        );
+                    })}
+                </select>
+                <select
+                    name={'channel'}
+                    id={'channelList'}
+                    className={'selector'}
+                    onChange={setChannel}
+                >
+                    <option value={''} selected={channel.id === ''}>
+                        채널을 선택 해 주세요
+                    </option>
+                    {channelList.map((item, i) => {
+                        return (
+                            <option key={i} value={item.id} selected={item.id === channel.id}>
+                                {item.name}
+                            </option>
+                        );
+                    })}
+                </select>
+            </div>
         </div>
     );
 }

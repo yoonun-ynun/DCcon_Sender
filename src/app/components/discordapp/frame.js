@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { DiscordSDK, RPCCloseCodes } from '@discord/embedded-app-sdk';
 import { getSession, useSession } from 'next-auth/react';
-import Channels from '@/app/components/discordapp/channels.js';
+import Channels from '@/app/components/discordapp/channels';
+import Selector from '@/app/components/discordapp/selector';
+
+/**
+ * @typedef {Object} Getters
+ * @property {() => Promise<{ok: boolean, guilds: {id: string, name: string}[], reason: string}>} getGuilds
+ * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
+ */
 
 export default function Frame({ CLIENT_ID }) {
     const sdkRef = useRef(null);
@@ -140,6 +147,12 @@ export default function Frame({ CLIENT_ID }) {
                         });
                         return await guilds.json();
                     },
+                    send: async (item, ch) => {
+                        const res = await fetch(
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}`,
+                        );
+                        return await res.json();
+                    },
                 };
                 setSession(user.user);
             } else {
@@ -159,6 +172,12 @@ export default function Frame({ CLIENT_ID }) {
                             body: JSON.stringify({ cookieUsable }),
                             headers: { 'Content-Type': 'application/json' },
                         });
+                    },
+                    send: async (item, ch) => {
+                        const res = await authedFetch(
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}`,
+                        );
+                        return await res.json();
                     },
                 };
             }
@@ -206,11 +225,12 @@ export default function Frame({ CLIENT_ID }) {
             <Channels
                 usingGuildId={sdkRef.current?.guildId}
                 usingChannelId={sdkRef.current?.channelId}
-                getters={getters.current}
+                getters={/** @type {Getters | null} */ getters.current}
             />
-            로그인 성공
-            <br />
-            디스코드 닉네임: {session?.name}
+            <Selector
+                discordId={session?.discordId}
+                getters={/** @type {Getters | null} */ getters.current}
+            ></Selector>
         </div>
     );
 }

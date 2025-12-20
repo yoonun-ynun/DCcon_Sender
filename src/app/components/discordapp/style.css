@@ -1,0 +1,91 @@
+/*디시콘 선택창*/
+.selectList{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid black;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+}
+
+#DCconList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+}
+
+.item{
+    flex: none;
+    width: 60px;
+    height: 60px;
+    padding-top: 5px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item.active{
+    background-color: lightblue;
+}
+
+.item img{
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+/* 길드/채널 선택창 */
+
+.selector{
+    border: 1px solid black;
+    width: 300px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+#selectorList{
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    gap: 10px;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+/* 이미지 리스트 */
+
+.image_list{
+    display: inline-grid;
+    grid-template-columns: repeat(auto-fill, 100px);
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.imageWrap{
+    display: flex;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+}

@@ -73,15 +73,17 @@ export async function POST(req) {
     return NextResponse.json({ isExist: Boolean(exists), success: true });
 }
 
-export async function GET() {
+export async function GET(req) {
     const session = await auth();
-    if (!session) {
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('userId');
+    if (!session && !userId) {
         return NextResponse.json(
             { success: false, message: '로그인을 먼저 해주세요' },
             { status: 401 },
         );
     }
-    const user_id = session.user.discordId;
+    const user_id = session?.user?.discordId ?? userId;
     if (!user_id) {
         return NextResponse.json(
             { success: false, message: 'user_id값이 없습니다. 관리자에게 문의하세요' },
