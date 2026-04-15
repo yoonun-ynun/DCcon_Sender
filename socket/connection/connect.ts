@@ -7,7 +7,7 @@ import {
     setSequence,
     stopHeartbeat,
 } from './heartbeat.js';
-import { Opcode, type Message } from './Message.js';
+import { Opcode, type event } from './Message.js';
 import { handler } from '../Discord/CommandHandler.js';
 
 let shouldResume = false;
@@ -15,7 +15,7 @@ let pendingSessionId: string | null = null;
 let socket: WebSocket | null = null;
 let isReconnecting: boolean = false;
 let resumeGateway: string | null = null;
-const eventQueue: Message[] = [];
+const eventQueue: event[] = [];
 
 export function startSocket() {
     socket = new WebSocket('wss://gateway.discord.gg/?v=10&encoding=json');
@@ -25,24 +25,24 @@ export function startSocket() {
     handleConnect();
 }
 
-function processQueueSync() {
+async function processQueueSync() {
     while (eventQueue.length > 0) {
         const temp = eventQueue.shift();
         if (temp === undefined) continue;
-        const message: Message = temp;
+        const message: event = temp;
         const currentSequence: number = getSequence() ?? 0;
         const seq = message.s ?? 0;
         if (seq <= currentSequence) {
             continue;
         }
         setSequence(message.s ?? 0);
-        void handler(message);
+        await handler(message);
     }
 }
 
 function manageSocket(event: WebSocket.RawData) {
     if (socket === null) throw Error('Socket is not connected');
-    const message: Message = JSON.parse(event.toString());
+    const message: event = JSON.parse(event.toString());
     const command: Opcode = message.op;
     if (command === Opcode.DISPATCH) {
         eventQueue.push(message);
@@ -68,7 +68,7 @@ function manageSocket(event: WebSocket.RawData) {
                     status: 'online',
                     afk: false,
                 },
-            } satisfies Message),
+            } satisfies event),
         );
     }
     if (command === Opcode.RECONNECT) {
@@ -116,7 +116,7 @@ function sendIdentify() {
                 device: 'computer',
             },
         },
-    } satisfies Message);
+    } satisfies event);
     socket.send(data);
 }
 
@@ -175,7 +175,7 @@ function sendResume() {
                     session_id: pendingSessionId,
                     seq: getSequence(),
                 },
-            } satisfies Message),
+            } satisfies event),
         );
     } else {
         console.log('Socket is not open, cannot send resume message');

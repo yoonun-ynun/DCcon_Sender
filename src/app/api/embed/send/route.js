@@ -10,8 +10,9 @@ export async function GET(req) {
     const url = searchParams.get('u');
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
-    if (!url || !cookieUsable || !channel || url === '' || channel === '')
+    if (!url || !cookieUsable || !channel || url === '' || channel === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
+    }
 
     let session;
 
@@ -93,7 +94,9 @@ async function createMessage(channel_id, body, files) {
         headers: headers,
         body: form,
     };
-    return await sender(url, option);
+    const result = await sender(url, option);
+    console.log(result.message);
+    return result;
 }
 
 async function sender(url, option) {
@@ -102,6 +105,7 @@ async function sender(url, option) {
         if (response.status === 204) {
             return { ok: true };
         }
+        if (!response.ok) return { ok: false, message: await response.json() };
         return {
             ok: true,
             message: await response.json(),
@@ -110,9 +114,10 @@ async function sender(url, option) {
         console.error(e);
         if (!(e instanceof Error)) {
             console.log(e);
-            return;
+            throw Error('Discord Error');
         }
         const message = e?.message ?? '';
+        console.log(message);
         return {
             ok: false,
             message: message,

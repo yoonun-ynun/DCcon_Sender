@@ -67,9 +67,7 @@ export default function List({ data, getters }) {
                                 key={i}
                                 style={{ cursor: 'pointer' }}
                                 data-addr={item.addr}
-                                onClick={() => {
-                                    sender(item.addr);
-                                }}
+                                onClick={() => sender(item.addr)}
                                 role={'button'}
                             >
                                 <Image

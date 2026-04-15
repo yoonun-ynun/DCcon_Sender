@@ -127,12 +127,71 @@ export async function removeInteractionResponse(application_id: string, interact
     return await sender(url, option);
 }
 
+export async function createGuildChannel(
+    guild_id: string,
+    name: string,
+    type: number,
+    parent_id?: string,
+    position?: number,
+) {
+    const url = base_url + `/guilds/${guild_id}/channels`;
+    const option = {
+        method: 'POST',
+        headers: {
+            Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name,
+            type,
+            parent_id: parent_id ? parent_id : null,
+            position: position ? position : null,
+        }),
+    };
+    return await sender(url, option);
+}
+
+export async function createReaction(
+    channel_id: string,
+    message_id: string,
+    emoji_id: string,
+    emoji_name: string,
+) {
+    const url =
+        base_url +
+        `/channels/${channel_id}/messages/${message_id}/reactions/${encodeURIComponent(`${emoji_name}:${emoji_id}`)}/@me`;
+    const option = {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+    };
+    return await sender(url, option);
+}
+
+export async function getGuildChannels(guild_id: string) {
+    const url = base_url + `/guilds/${guild_id}/channels`;
+    const option = {
+        method: 'GET',
+        headers: {
+            Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+    };
+    return await sender(url, option);
+}
+
 async function sender(url: string, option: Record<string, unknown>) {
     try {
         const response = await fetch(url, option);
         if (response.status === 204) {
             return { ok: true };
         }
+        if (!response.ok) return { ok: false, message: await response.text() };
         return {
             ok: true,
             message: await response.json(),

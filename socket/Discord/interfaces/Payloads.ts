@@ -48,10 +48,12 @@ export type Command_List = 'list' | 'select' | 'profile';
 
 export interface CommandPayload {
     name: Command_List;
+    guild_id?: string;
     user?: {
         user_name?: string;
         user_id: string;
         avatar_link?: string;
+        permission?: string;
     };
     application: {
         application_id: string;
@@ -63,6 +65,8 @@ export interface CommandPayload {
         selectedCon?: number;
         index?: string;
         selector?: number;
+        count?: number;
+        decount?: number;
     };
 }
 
@@ -129,7 +133,7 @@ export interface editMessage {
     };
 }
 
-interface embed {
+export interface embed {
     title?: string;
     type?: string;
     description?: string;

@@ -1,5 +1,7 @@
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import nextPlugin from '@next/eslint-plugin-next';
 import prettierPlugin from 'eslint-plugin-prettier';
@@ -8,6 +10,8 @@ import globals from 'globals';
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
+    ...nextVitals,
+    ...nextTs,
     {
         ignores: ['node_modules/', '.next/', 'dist/', 'build/', 'out/'],
     },
@@ -48,29 +52,12 @@ export default [
 
     {
         files: ['src/**/*.{js,jsx,ts,tsx}'],
-        languageOptions: {
-            ecmaVersion: 2022,
-            sourceType: 'module',
-            parserOptions: {
-                ecmaFeatures: {
-                    jsx: true,
-                },
-            },
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-            },
-        },
         plugins: {
-            '@next/next': nextPlugin,
             prettier: prettierPlugin,
         },
         rules: {
-            // next/core-web-vitals 적용
-            ...nextPlugin.configs['core-web-vitals'].rules,
             ...prettierConfig.rules,
 
-            'react/react-in-jsx-scope': 'off',
             'prettier/prettier': 'error',
             'prefer-const': 'error',
             'func-style': ['error', 'declaration', { allowArrowFunctions: false }],

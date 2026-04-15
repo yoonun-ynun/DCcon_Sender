@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    allowedDevOrigins: [process.env.AUTH_URL],
+    allowedDevOrigins: [process.env.AUTH_URL.split('//')[1]],
     productionBrowserSourceMaps: false,
     async rewrites() {
         return [

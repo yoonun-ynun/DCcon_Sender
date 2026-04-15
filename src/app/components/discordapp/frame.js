@@ -48,7 +48,7 @@ export default function Frame({ CLIENT_ID }) {
     async function checkRefresh() {
         if (refreshing.current) return refreshing.current;
 
-        refreshing.current = (async () => {
+        refreshing.current = async () => {
             const res = await fetch('/api/embed/refresh', {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token.current}` },
@@ -57,7 +57,7 @@ export default function Frame({ CLIENT_ID }) {
             const newToken = await res.json();
             if (!newToken?.embeddedToken) throw Error('Missing token.');
             token.current = newToken.embeddedToken;
-        })();
+        };
 
         try {
             await refreshing.current;

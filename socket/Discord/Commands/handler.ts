@@ -4,11 +4,13 @@ import selectProfile from './selectProfile.js';
 import type { CommandPayload } from '../interfaces/Payloads.js';
 import { CommandError } from '../Errors/CommandError.js';
 import { editInteractionResponse } from '../AJAX.js';
+import initializeRecommend from './initializeRecommend.js';
 
-const Command = {
+const Command: Record<string, (payload: CommandPayload) => Promise<void>> = {
     list: sendList,
     select: sendDCcon,
     profile: selectProfile,
+    init: initializeRecommend,
 };
 
 const errorList = {
