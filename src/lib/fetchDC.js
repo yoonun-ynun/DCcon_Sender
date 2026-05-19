@@ -1,36 +1,45 @@
 import { JSDOM } from 'jsdom';
 
 export async function day_top() {
-    const res = await fetch(
-        'https://json2.dcinside.com/json1/dccon_day_top5.php?4&jsoncallback=day_top5',
-        {
-            method: 'GET',
-            headers: {
-                referer: 'https://dccon.dcinside.com/',
-            },
-            next: { revalidate: 3600 },
+    const res = await fetch('https://json2.dcinside.com/json1/dccon_day_top100.php', {
+        method: 'GET',
+        headers: {
+            referer: 'https://dccon.dcinside.com/',
         },
-    );
+        next: { revalidate: 3600 },
+    });
     const data = await res.text();
-    let response = data.substring(9, data.length - 1); //JSONP to JSON
+    let response = data.substring(1, data.length - 1); //JSONP to JSON
     response = JSON.parse(response);
     return response;
 }
 
 export async function week_top() {
-    const res = await fetch(
-        'https://json2.dcinside.com/json1/dccon_week_top5.php?1&jsoncallback=week_top5',
-        {
-            method: 'GET',
-            headers: {
-                referer: 'https://dccon.dcinside.com/',
-            },
-            next: { revalidate: 3600 },
+    const res = await fetch('https://json2.dcinside.com/json1/dccon_week_top100.php', {
+        method: 'GET',
+        headers: {
+            referer: 'https://dccon.dcinside.com/',
         },
-    );
+        next: { revalidate: 3600 },
+    });
 
     const data = await res.text();
-    let response = data.substring(10, data.length - 1); //JSONP to JSON
+    let response = data.substring(1, data.length - 1); //JSONP to JSON
+    response = JSON.parse(response);
+    return response;
+}
+
+export async function month_top() {
+    const res = await fetch('https://json2.dcinside.com/json1/dccon_month_top100.php', {
+        method: 'GET',
+        headers: {
+            referer: 'https://dccon.dcinside.com/',
+        },
+        next: { revalidate: 3600 },
+    });
+
+    const data = await res.text();
+    let response = data.substring(1, data.length - 1); //JSONP to JSON
     response = JSON.parse(response);
     return response;
 }

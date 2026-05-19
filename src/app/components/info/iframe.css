@@ -60,7 +60,7 @@
     color: #aaa;
 }
 
-.title_field{
+#class_doc .title_field {
     padding: 1rem 0;
     margin-bottom: 3rem;
 }
@@ -135,6 +135,33 @@
 .dccon_img {
     font-size: 0;
     color: transparent;
+}
+
+.hot_item .img-bg {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 1.5rem;
+    border-radius: 20px;
+    background: transparent;
+    overflow: hidden;
+}
+
+.hot_item .img-bg .dccon-wrapper {
+    width: 180px !important;
+    height: 180px !important;
+    margin: 0 !important;
+    display: block !important;
+}
+
+.hot_item .img-bg .dccon-bg {
+    background: transparent;
+}
+
+.hot_item .img-bg .dccon-real {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 20px;
 }
 
 @media screen and (max-width: 780px){
