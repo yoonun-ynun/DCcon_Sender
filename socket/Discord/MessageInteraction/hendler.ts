@@ -10,6 +10,7 @@ const interaction: Record<
         message_id?: string,
         guild_id?: string,
         image?: string,
+        user_name?: string,
     ) => Promise<void>
 > = {
     dcinside: embedSender,
@@ -29,6 +30,7 @@ export async function messageHandler(event: messageEvent) {
         event.message_id,
         event.guild_id,
         event.image,
+        event.user_name,
     );
 }
 
@@ -45,6 +47,7 @@ interface messageEvent {
     channel_id: string;
     message_id: string;
     user_id: string;
+    user_name: string;
     guild_id?: string;
     image?: string;
 }

@@ -11,6 +11,7 @@ import { Opcode, type event } from './Message.js';
 import { handler } from '../Discord/CommandHandler.js';
 
 let shouldResume = false;
+let isProcessingQueue = false;
 let pendingSessionId: string | null = null;
 let socket: WebSocket | null = null;
 let isReconnecting: boolean = false;
@@ -26,17 +27,28 @@ export function startSocket() {
 }
 
 async function processQueueSync() {
-    while (eventQueue.length > 0) {
-        const temp = eventQueue.shift();
-        if (temp === undefined) continue;
-        const message: event = temp;
-        const currentSequence: number = getSequence() ?? 0;
-        const seq = message.s ?? 0;
-        if (seq <= currentSequence) {
-            continue;
+    if (isProcessingQueue) return;
+
+    isProcessingQueue = true;
+
+    try {
+        while (eventQueue.length > 0) {
+            const temp = eventQueue.shift();
+            if (temp === undefined) continue;
+            const message: event = temp;
+            const currentSequence: number = getSequence() ?? 0;
+            const seq = message.s ?? 0;
+            if (seq <= currentSequence) {
+                continue;
+            }
+            await handler(message);
+            setSequence(seq);
         }
-        setSequence(message.s ?? 0);
-        await handler(message);
+    } catch (err) {
+        console.error('Failed to process event queue:', err);
+    } finally {
+        isProcessingQueue = false;
+        if (eventQueue.length > 0) processQueueSync();
     }
 }
 

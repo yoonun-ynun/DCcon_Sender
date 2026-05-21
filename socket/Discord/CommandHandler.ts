@@ -59,10 +59,7 @@ async function handleReaction(message: event, isAdd: boolean) {
     if (message.d === undefined) return;
     const event = message.d as ReactionPayload;
     const emoji = event.emoji;
-    if (emoji.id === null || emoji.name === null) {
-        return;
-    }
-    reactionHandler(isAdd, emoji.id, event.message_id);
+    reactionHandler(isAdd, emoji.id, emoji.name, event.message_id);
 }
 
 async function handleMessage(message: event) {
@@ -83,6 +80,7 @@ async function handleMessage(message: event) {
         channel_id: data.channel_id,
         message_id: data.id,
         user_id: data.author.id,
+        user_name: data.author.username,
         guild_id: data.guild_id,
         image: image,
     });
@@ -95,10 +93,14 @@ async function handleInteraction(message: event) {
     const interaction_id = interaction.id;
     const application_id = interaction.application_id;
     const interaction_token = interaction.token;
+    const command_name = (interaction.data as applicationCommandDataStructure).name;
     await createInteractionResponse(interaction_id, interaction_token, {
         type: 5,
+        data: {
+            flags: command_name === '개추/비추 반응 추가' ? 1 << 6 : undefined,
+        },
     });
-    const command_name = (interaction.data as applicationCommandDataStructure).name;
+
     const user_id = interaction.user?.id ?? interaction.member?.user?.id;
     const user_name =
         interaction.member?.nick ??
@@ -132,21 +134,24 @@ async function handleInteraction(message: event) {
 
     const data = interaction.data as applicationCommandDataStructure;
     const options = data.options ?? [];
-    let idx, selector, index, count, decount;
+    let idx, selector, index, count, decount, auto;
     options.forEach((item) => {
         if (item.name === 'idx') idx = item.value as string;
         if (item.name === 'selector') selector = item.value as number;
         if (item.name === 'index') index = item.value as number;
         if (item.name === 'count') count = item.value as number;
         if (item.name === 'decount') decount = item.value as number;
+        if (item.name === 'auto') auto = item.value as boolean;
     });
     const guild_id = interaction.guild_id
         ? interaction.guild_id
         : (interaction.guild?.['id'] as undefined | string);
+    const message_id = (interaction.data as applicationCommandDataStructure).target_id;
 
     await handle({
         name: command_name,
         guild_id: guild_id,
+        message_id: message_id,
         user: {
             user_id: user_id,
             user_name: user_name,
@@ -165,6 +170,7 @@ async function handleInteraction(message: event) {
             selector: selector,
             count: count,
             decount: decount,
+            auto: auto,
         },
     });
 }
@@ -264,6 +270,12 @@ function createCommand() {
                 max_value: 100,
                 required: true,
             },
+            {
+                type: 5,
+                name: 'auto',
+                description: '개추/비추 반응을 자동으로 추가할지',
+                required: true,
+            },
         ],
     })
         .then((res) => {
@@ -274,4 +286,47 @@ function createCommand() {
             console.log('명령어 설정 환료');
         })
         .catch(() => console.error('명령어 설정에 실패하였습니다.'));
+    createGlobalCommand({
+        name: '개추/비추 반응 추가',
+        type: 3,
+    }).then((res) => {
+        if (res?.ok !== true) {
+            console.log(res?.message);
+            return;
+        }
+        console.log('명령어 설정 환료');
+    });
+    createGlobalCommand({
+        name: 'invite',
+        description: '개인용 명령어',
+        type: 1,
+        options: [
+            {
+                type: 4,
+                name: 'days',
+                description: '대기 일수',
+                min_value: 1,
+                max_value: 100,
+                required: true,
+            },
+        ],
+    })
+        .then((res) => {
+            if (res?.ok !== true) {
+                console.log(res?.message);
+                return;
+            }
+            console.log('명령어 설정 환료');
+        })
+        .catch(() => console.error('명령어 설정에 실패하였습니다.'));
+    createGlobalCommand({
+        name: '개추/비추 반응 추가',
+        type: 3,
+    }).then((res) => {
+        if (res?.ok !== true) {
+            console.log(res?.message);
+            return;
+        }
+        console.log('명령어 설정 환료');
+    });
 }

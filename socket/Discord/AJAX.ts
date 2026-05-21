@@ -185,6 +185,23 @@ export async function getGuildChannels(guild_id: string) {
     return await sender(url, option);
 }
 
+export async function deleteAllReactionsForEmoji(
+    channel_id: string,
+    message_id: string,
+    emoji_id: string,
+) {
+    const url = base_url + `/channels/${channel_id}/messages/${message_id}/reactions/${emoji_id}`;
+    const option = {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+            'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+            'Content-Type': 'application/json',
+        },
+    };
+    return await sender(url, option);
+}
+
 async function sender(url: string, option: Record<string, unknown>) {
     try {
         const response = await fetch(url, option);
