@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { headers } from 'next/headers';
 import { decode } from 'next-auth/jwt';
+import { getDoubleImage } from '@/app/api/embed/send/getDoubleImage.js';
 
 const base_url = 'https://discord.com/api/v10';
 
@@ -10,8 +11,12 @@ export async function GET(req) {
     const url = searchParams.get('u');
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
+    let double = Number(searchParams.get('d'));
     if (!url || !cookieUsable || !channel || url === '' || channel === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
+    }
+    if (isNaN(double)) {
+        double = 1;
     }
 
     let session;
@@ -30,6 +35,7 @@ export async function GET(req) {
         }
 
         const jwt = h.slice('Bearer '.length);
+        /**@type {{name: string, discordId: string, image: string}} */
         const payload = await decode({
             token: jwt,
             secret: process.env.AUTH_SECRET,
@@ -43,11 +49,29 @@ export async function GET(req) {
         };
     }
 
-    const res = await fetch(`http://localhost:3000/api/img?u=${encodeURIComponent(url)}`);
-    if (!res.ok)
-        return NextResponse.json({ ok: false, reason: 'failed fetching image' }, { status: 400 });
-    const ext = res.headers.get('Content-Type').split('/')[1] ?? 'png';
-    const image = new File([await res.blob()], 'main_image.' + ext);
+    let image;
+    let ext;
+    if (double > 1) {
+        const urls = JSON.parse(url).urls;
+        const result = await getDoubleImage(urls);
+        if (!result) {
+            return NextResponse.json(
+                { ok: false, reason: 'failed fetching image' },
+                { status: 400 },
+            );
+        }
+        image = result.file;
+        ext = result.ext;
+    } else {
+        const res = await fetch(`http://localhost:3000/api/img?u=${encodeURIComponent(url)}`);
+        if (!res.ok)
+            return NextResponse.json(
+                { ok: false, reason: 'failed fetching image' },
+                { status: 400 },
+            );
+        ext = res.headers.get('Content-Type').split('/')[1] ?? 'png';
+        image = new File([await res.blob()], 'main_image.' + ext);
+    }
     if (!image) return NextResponse.json({ ok: false, reason: 'invalid image' }, { status: 400 });
 
     const body = {

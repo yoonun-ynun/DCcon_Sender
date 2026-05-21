@@ -147,9 +147,9 @@ export default function Frame({ CLIENT_ID, tops }) {
                         });
                         return await guilds.json();
                     },
-                    send: async (item, ch) => {
+                    send: async (item, ch, d) => {
                         const res = await fetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}`,
                         );
                         return await res.json();
                     },
@@ -173,9 +173,9 @@ export default function Frame({ CLIENT_ID, tops }) {
                             headers: { 'Content-Type': 'application/json' },
                         });
                     },
-                    send: async (item, ch) => {
+                    send: async (item, ch, d) => {
                         const res = await authedFetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}`,
                         );
                         return await res.json();
                     },

@@ -120,6 +120,62 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0.1);
 }
 
+.dcconImageItem {
+    width: 110px;
+    height: 110px;
+    border-radius: 10px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dcconImageItem.selected_dccon {
+    background-color: #5865f2;
+}
+
+.Double {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1001;
+
+    min-width: 90px;
+    height: 36px;
+    padding: 0 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    border: 1px solid #5865f2;
+    background-color: #5865f2;
+    color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.Double.mode_1 {
+    background-color: #5865f2; /* 싱글콘: 파란색 */
+    color: white;
+}
+
+.Double.mode_2 {
+    background-color: #facc15; /* 더블콘: 노란색 */
+    color: black;
+    border-color: #facc15;
+}
+
+.Double.mode_3 {
+    background-color: #ef4444; /* 트리플콘: 빨간색 */
+    color: white;
+    border-color: #ef4444;
+}
+
 /* 로딩 아이콘 */
 
 .loader {
@@ -130,6 +186,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 10000;
 }
 @media (max-width: 225px), (max-height: 225px) {
     .loader {
@@ -174,4 +231,5 @@
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.3);
+    z-index: 9999;
 }
