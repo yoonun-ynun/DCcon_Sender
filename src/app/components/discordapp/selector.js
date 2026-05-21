@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import './style.css';
@@ -20,30 +22,58 @@ import List from '@/app/components/discordapp/list.js';
  */
 
 /**
+ * @typedef {Object} DCconInfo
+ * @property {number} rank
+ * @property { string } package_idx
+ * @property { string } title
+ * @property {string} desc
+ * @property {string} nick_name
+ * @property {string} price
+ * @property {string} img
+ */
+
+/**
  * @param { string } discordId
  * @param {Getters} getters
+ * @param { {day: DCconInfo[], week: DCconInfo[], month: DCconInfo[]} } tops
  * @returns {React.JSX.Element}
  * @constructor
  */
-export default function Selector({ discordId, getters }) {
+export default function Selector({ discordId, getters, tops }) {
     const [msg, setMsg] = useState('');
-    const [listInfo, setListInfo] = useState(/**@type {Record<string, DcconList>}*/ {});
-    const [selected, setSelected] = useState('');
+    const [listInfo, setListInfo] = useState(
+        /** @type {{key: string, value: DcconList, empty?: boolean}[]} */ [],
+    );
+    const [mode, setMode] = useState('registered');
+    const [selected, setSelected] = useState(1);
 
     useEffect(() => {
         let called = false;
-
         (async () => {
-            const listRes = await fetch(`/api/controller?userId=${discordId}`);
-            if (!listRes.ok) {
-                setMsg('id로 부터 등록된 리스트를 불러오는 도중 오류가 발생하였습니다.');
-                return;
+            /**@type {string[]} **/
+            let list = [];
+            if (mode === 'registered') {
+                const listRes = await fetch(`/api/controller?userId=${discordId}`);
+                if (!listRes.ok) {
+                    setMsg('id로 부터 등록된 리스트를 불러오는 도중 오류가 발생하였습니다.');
+                    return;
+                }
+
+                list = (await listRes.json()).list ?? [];
+            } else {
+                const target =
+                    mode === 'month' ? tops.month : mode === 'week' ? tops.week : tops.day;
+                if (!target) {
+                    setMsg('인기 디시콘 정보를 찾을 수 없습니다.');
+                    return;
+                }
+
+                list = target.map((item) => {
+                    return item.package_idx;
+                });
             }
-            /** @type { string[] } */
-            const list = (await listRes.json()).list ?? [];
             setMsg(list.toString());
             if (called) return;
-            setSelected(list[0]);
             /** @type { DcconList[] } */
             const info = await Promise.all(
                 list.map(async (item) => {
@@ -58,44 +88,72 @@ export default function Selector({ discordId, getters }) {
             );
             setMsg(info.toString());
             if (called) return;
-            setListInfo(
-                Object.fromEntries(
-                    info.map((item) => {
-                        return [item.idx, item];
-                    }),
-                ),
-            );
+            setListInfo([
+                {
+                    key: '__empty__',
+                    empty: true,
+                    value: {
+                        main_img: '',
+                        idx: '',
+                        path: [],
+                    },
+                },
+                ...info.map((item) => {
+                    return {
+                        key: item.idx,
+                        value: item,
+                    };
+                }),
+            ]);
         })();
 
         return () => {
             called = true;
         };
-    }, [discordId]);
+    }, [discordId, mode, tops]);
 
     function setSelect(event) {
-        const idx = event.currentTarget.id;
+        const idx = Number(event.currentTarget.id);
         setSelected(idx);
+    }
+
+    function changeMode(event) {
+        setMode(event.currentTarget.value);
     }
 
     return (
         <div>
-            <List data={listInfo[selected] ?? {}} getters={getters} />
+            <List data={listInfo[selected]?.value ?? {}} getters={getters} />
             <div className={'selectList'}>
                 <div className={'list'} id={'DCconList'}>
-                    {Object.entries(listInfo).map(([key, value]) => {
+                    {listInfo.map((value, key) => {
                         return (
                             <div
-                                className={`item ${key === selected ? 'active' : ''} `}
-                                key={key}
-                                id={key}
-                                onClick={setSelect}
+                                className={`item ${key === selected ? 'active' : ''}  ${value.empty ? 'stickySelectItem' : ''}`}
+                                key={value.key}
+                                id={String(key)}
+                                onClick={value.empty ? undefined : setSelect}
                             >
-                                <Image
-                                    src={`/api/img?u=${encodeURIComponent(value.main_img)}`}
-                                    alt={''}
-                                    width={50}
-                                    height={50}
-                                ></Image>
+                                {value.empty ? (
+                                    <select
+                                        className="dcconSelect"
+                                        value={mode}
+                                        onChange={changeMode}
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
+                                        <option value="registered">등록됨</option>
+                                        <option value="month">월간인기</option>
+                                        <option value="week">주간인기</option>
+                                        <option value="day">일간인기</option>
+                                    </select>
+                                ) : (
+                                    <Image
+                                        src={`/api/img?u=${encodeURIComponent(value.value.main_img)}`}
+                                        alt=""
+                                        width={50}
+                                        height={50}
+                                    />
+                                )}
                             </div>
                         );
                     })}

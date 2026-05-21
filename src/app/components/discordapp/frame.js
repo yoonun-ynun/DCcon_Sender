@@ -12,7 +12,7 @@ import Selector from '@/app/components/discordapp/selector';
  * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
  */
 
-export default function Frame({ CLIENT_ID }) {
+export default function Frame({ CLIENT_ID, tops }) {
     const sdkRef = useRef(null);
     const startedRef = useRef(false);
     const platform = useRef('');
@@ -230,6 +230,7 @@ export default function Frame({ CLIENT_ID }) {
             <Selector
                 discordId={session?.discordId}
                 getters={/** @type {Getters | null} */ getters.current}
+                tops={tops}
             ></Selector>
         </div>
     );

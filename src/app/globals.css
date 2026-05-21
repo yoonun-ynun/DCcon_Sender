@@ -267,6 +267,33 @@ div{
   color: transparent;
 }
 
+.hot_item .img-bg {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 1.5rem;
+  border-radius: 20px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.hot_item .img-bg {
+  width: 180px !important;
+  height: 180px !important;
+  margin: 0 !important;
+  display: block !important;
+}
+
+.hot_item .img-bg .dccon-bg {
+  background: transparent;
+}
+
+.hot_item .img-bg .dccon-real {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+}
+
 .title_field{
 
   padding: 0.9rem 1.4rem;
@@ -407,36 +434,20 @@ a {
     height: 240px;
   }
 
-  .image{
-    width: 145px;
-    height: 145px;
-    margin-bottom: 1rem;
-    opacity: 0;
-  }
-
-
-  .image.loaded {
-    opacity: 1;
-  }
-
   .img-bg{
     width: 145px;
     height: 145px;
   }
 
-  .hot_item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
+  .hot_item .img-bg {
+    width: 145px;
+    height: 145px;
+    margin-bottom: 1rem;
   }
 
-  .hot_item .title_field {
-    padding: 0.9rem 1.4rem;
-    margin: 0;
-    border-radius: 1rem;
-    font-size: 1.2rem;
+  .hot_item .img-bg {
+    width: 145px !important;
+    height: 145px !important;
   }
 
   .title_field{

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '../info/Image.js';
 import { storeChannel } from '@/store/storeList.js';
 import { useState } from 'react';
 import Sending from '@/app/components/discordapp/sending.js';

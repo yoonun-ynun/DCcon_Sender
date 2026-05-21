@@ -83,6 +83,8 @@ export default function Tabs({ initialData }) {
                                             }
                                             alt={'DCcon image'}
                                             className={'image'}
+                                            width={180}
+                                            height={180}
                                         />
                                     </div>
                                     <div className={'title_field'}>

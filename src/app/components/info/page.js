@@ -37,6 +37,8 @@ export default async function Page({ searchParams }) {
                             src={`/api/img?u=${encodeURIComponent(item.addr)}`}
                             alt={'path image'}
                             key={i}
+                            width={200}
+                            height={200}
                         />
                     );
                 })}

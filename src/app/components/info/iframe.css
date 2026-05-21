@@ -107,8 +107,8 @@
 .dccon-wrapper {
     position: relative;
     display: inline-block;
-    width: 200px;
-    height: 200px;
+    flex: none;
+    overflow: hidden;
 }
 
 
@@ -135,33 +135,6 @@
 .dccon_img {
     font-size: 0;
     color: transparent;
-}
-
-.hot_item .img-bg {
-    width: 180px;
-    height: 180px;
-    margin-bottom: 1.5rem;
-    border-radius: 20px;
-    background: transparent;
-    overflow: hidden;
-}
-
-.hot_item .img-bg .dccon-wrapper {
-    width: 180px !important;
-    height: 180px !important;
-    margin: 0 !important;
-    display: block !important;
-}
-
-.hot_item .img-bg .dccon-bg {
-    background: transparent;
-}
-
-.hot_item .img-bg .dccon-real {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    border-radius: 20px;
 }
 
 @media screen and (max-width: 780px){
