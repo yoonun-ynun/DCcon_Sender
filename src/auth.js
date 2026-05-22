@@ -210,10 +210,18 @@ export async function verifyEmbeddedProof({ code, instanceId, guildId }) {
 
     const member = await memberRes.json();
 
-    const serverName = member.nick;
+    const serverName = member.nick ?? token_json.global_name;
 
     if (serverName) {
         username = serverName;
+    }
+
+    const serverAvatar = member.avatar
+        ? `https://cdn.discordapp.com/guilds/${guildId}/users/${user_id}/avatars/${member.avatar}.${member.avatar.startsWith('a_') ? 'gif' : 'png'}`
+        : undefined;
+
+    if (serverAvatar) {
+        avatar_url = serverAvatar;
     }
 
     const instance_res = await fetch(

@@ -48,21 +48,30 @@ export default function Frame({ CLIENT_ID, tops }) {
     async function checkRefresh() {
         if (refreshing.current) return refreshing.current;
 
-        refreshing.current = async () => {
+        refreshing.current = (async () => {
             const res = await fetch('/api/embed/refresh', {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token.current}` },
             });
-            if (!res.ok) throw Error('Error during request refresh.');
+
+            if (!res.ok) {
+                throw new Error('Error during request refresh.');
+            }
+
             const newToken = await res.json();
-            if (!newToken?.embeddedToken) throw Error('Missing token.');
+
+            if (!newToken?.embeddedToken) {
+                throw new Error('Missing token.');
+            }
+
             token.current = newToken.embeddedToken;
-        };
+        })();
 
         try {
             await refreshing.current;
         } catch (e) {
             sdkRef?.current?.close?.(RPCCloseCodes.CLOSE_NORMAL, '토큰 refresh 실패');
+            throw e;
         } finally {
             refreshing.current = null;
         }
@@ -183,16 +192,12 @@ export default function Frame({ CLIENT_ID, tops }) {
                         });
                     },
                     send: async (item, ch, d, r) => {
-                        const res = await authedFetch(
+                        return await authedFetch(
                             `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}`,
                         );
-                        return await res.json();
                     },
                     recents: async (ch) => {
-                        const res = await authedFetch(
-                            `/api/embed/recents?c=${cookieUsable}&ch=${ch}`,
-                        );
-                        return await res.json();
+                        return await authedFetch(`/api/embed/recents?c=${cookieUsable}&ch=${ch}`);
                     },
                 };
             }

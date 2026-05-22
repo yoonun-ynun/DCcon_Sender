@@ -60,7 +60,7 @@ export default function List({ data, getters }) {
             if (!alive) return;
 
             if (result.ok) {
-                setReplyMessages(result.data ?? []);
+                setReplyMessages(result.data.reverse() ?? []);
             }
         }
 
