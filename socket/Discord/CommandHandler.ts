@@ -1,5 +1,5 @@
 import { type event } from '../connection/Message.js';
-import { createGlobalCommand, createInteractionResponse } from './AJAX.js';
+import { createGlobalCommand, createInteractionResponse, deleteMessage } from './AJAX.js';
 import type {
     applicationCommandDataStructure,
     interaction,
@@ -7,7 +7,7 @@ import type {
 } from './interfaces/types.js';
 import handle from './Commands/handler.js';
 import { messageHandler } from './MessageInteraction/hendler.js';
-import { type message } from './interfaces/primaryType.js';
+import { type createdMessage, type message } from './interfaces/primaryType.js';
 import { reactionHandler } from './MessageReaction/handler.js';
 
 export async function handler(message: event) {
@@ -64,7 +64,16 @@ async function handleReaction(message: event, isAdd: boolean) {
 
 async function handleMessage(message: event) {
     if (message.d === undefined) return;
-    const data: message = message.d as message;
+    const data: createdMessage = message.d as createdMessage;
+    const isActivityLaunchMessage =
+        data.type === 23 &&
+        data.application?.id === process.env['APPLICATION_ID'] &&
+        data.interaction_metadata?.name === 'launch' &&
+        data.activity_instance?.id;
+    if (isActivityLaunchMessage) {
+        await deleteMessage(data.channel_id, data.id);
+        return;
+    }
     let image: string | undefined;
     if (data.attachments.length > 0) {
         const media = data.attachments[data.attachments.length - 1];
@@ -80,7 +89,7 @@ async function handleMessage(message: event) {
         channel_id: data.channel_id,
         message_id: data.id,
         user_id: data.author.id,
-        user_name: data.author.username,
+        user_name: data.member?.nick ?? data.author.global_name ?? data.author.username,
         guild_id: data.guild_id,
         image: image,
     });

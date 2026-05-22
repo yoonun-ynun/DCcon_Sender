@@ -1,10 +1,6 @@
 import { createReaction } from '../AJAX.js';
 import { acceptedGuild, appendRecommendQueue, getAuto } from './RecommendQueue.js';
 
-const EMOJI_ID = process.env['RECOMMEND_ID'];
-const EMOJI_NAME = process.env['RECOMMEND_NAME'];
-const BEECHU_ID = process.env['REVERSE_ID'];
-const BEECHU_NAME = process.env['REVERSE_NAME'];
 const TIME_INTERVAL = 12 * 60 * 60 * 1000;
 
 const channelMessage: Record<string, TempMessage | undefined> = {};
@@ -92,6 +88,10 @@ function handleTimeout(channel_id: string, message_id: string, guild_id: string)
 }
 
 export function addReactionEmoji(channel_id: string, message_id: string) {
+    const EMOJI_ID = process.env['RECOMMEND_ID'];
+    const EMOJI_NAME = process.env['RECOMMEND_NAME'];
+    const BEECHU_ID = process.env['REVERSE_ID'];
+    const BEECHU_NAME = process.env['REVERSE_NAME'];
     if (
         EMOJI_ID === undefined ||
         EMOJI_NAME === undefined ||

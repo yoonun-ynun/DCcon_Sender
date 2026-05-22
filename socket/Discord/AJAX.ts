@@ -35,6 +35,19 @@ export async function createMessage(channel_id: string, body: DiscordMessageBody
     return await sender(url, option);
 }
 
+export async function deleteMessage(channel_id: string, message_id: string) {
+    const headers = {
+        Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
+        'User-Agent': `DCcon_Sender (${process.env['AUTH_URL']}, 1.0)`,
+    };
+    const url = base_url + `/channels/${channel_id}/messages/${message_id}`;
+    const option = {
+        method: 'DELETE',
+        headers: headers,
+    };
+    return await sender(url, option);
+}
+
 export async function createGlobalCommand(body: DiscordCommandPayload) {
     const headers = {
         Authorization: `Bot ${process.env['DISCORD_TOKEN']}`,
