@@ -1,6 +1,6 @@
 import Image from '../info/Image.js';
 import { storeChannel } from '@/store/storeList.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sending from '@/app/components/discordapp/sending.js';
 
 /**
@@ -18,10 +18,18 @@ import Sending from '@/app/components/discordapp/sending.js';
  */
 
 /**
+ * @typedef {Object} recentMessage
+ * @property {string} message_id
+ * @property {string} username
+ * @property {string} text
+ */
+
+/**
  * @typedef {Object} Getters
  * @property {() => Promise<{ok: boolean, guilds: {id: string, name: string}[], reason: string}>} getGuilds
  * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
- * @property {(id:string, channel:string, double: number) => Promise<{ok: boolean, reason: string}>} send
+ * @property {(id:string, channel:string, double: number, reply: string) => Promise<{ok: boolean, reason: string}>} send
+ * @property {(channel: string) => Promise<{ok: boolean, data:recentMessage[], reason: string }>} recents
  */
 
 /**
@@ -36,7 +44,33 @@ export default function List({ data, getters }) {
     const [isLoading, setIsLoading] = useState(false);
     const [double, setDouble] = useState(1);
     const [selected, setSelected] = useState([]);
+    const [replyOpen, setReplyOpen] = useState(false);
+    const [replyTarget, setReplyTarget] = useState(null);
+    const [replyMessages, setReplyMessages] = useState([]);
     const channel = storeChannel((s) => s.channel);
+
+    useEffect(() => {
+        if (!channel?.id || !getters?.recents) return;
+
+        let alive = true;
+
+        async function loadReplyMessages() {
+            const result = await getters.recents(channel.id);
+
+            if (!alive) return;
+
+            if (result.ok) {
+                setReplyMessages(result.data ?? []);
+            }
+        }
+
+        loadReplyMessages();
+
+        return () => {
+            alive = false;
+        };
+    }, [channel?.id, getters]);
+
     if (!data || !data.path) {
         return <div></div>;
     }
@@ -78,7 +112,12 @@ export default function List({ data, getters }) {
                 return;
             }
 
-            const result = await getters.send(encodeURIComponent(addr), channel.id, count);
+            const result = await getters.send(
+                encodeURIComponent(addr),
+                channel.id,
+                count,
+                replyTarget?.message_id,
+            );
             if (!result.ok) setMsg('전송 중 오류가 발생하였습니다.' + ` reason: ${result.reason}`);
         } catch (e) {
             setMsg('에러가 발생하였습니다.');
@@ -99,6 +138,55 @@ export default function List({ data, getters }) {
             {isLoading && <Sending />}
             {msg}
             <br />
+            <button
+                className={`replyFloatingButton ${replyTarget ? 'active' : ''}`}
+                onClick={() => setReplyOpen(true)}
+            >
+                {replyTarget ? `↪ ${replyTarget.username}` : '↪ 답장'}
+            </button>
+
+            {replyOpen && (
+                <div>
+                    <div className="replySheetBackdrop" onClick={() => setReplyOpen(false)} />
+
+                    <div className="replySheet">
+                        <div className="replySheetHeader">
+                            <span>답장할 메시지 선택</span>
+                            <button className="replySheetClose" onClick={() => setReplyOpen(false)}>
+                                ×
+                            </button>
+                        </div>
+
+                        <div
+                            className="replyItem"
+                            onClick={() => {
+                                setReplyTarget(null);
+                                setReplyOpen(false);
+                            }}
+                        >
+                            <div className="replyAuthor">답장 안 함</div>
+                        </div>
+
+                        {replyMessages.map((msg) => (
+                            <div
+                                key={msg.message_id}
+                                className={
+                                    replyTarget?.message_id === msg.message_id
+                                        ? 'replyItem selected'
+                                        : 'replyItem'
+                                }
+                                onClick={() => {
+                                    setReplyTarget(msg);
+                                    setReplyOpen(false);
+                                }}
+                            >
+                                <div className="replyAuthor">{msg.username}</div>
+                                <div className="replyText">{msg.text}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
             <div className={`Double mode_${double}`} onClick={changeDoubleMode} role="button">
                 {double === 1 ? (
                     <span>싱글콘</span>

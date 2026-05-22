@@ -71,13 +71,13 @@ export interface message {
     webhook_id?: string;
     type: number;
     activity?: Record<string, unknown>;
-    application?: Record<string, unknown>;
+    application?: { id: string };
     application_id?: string;
     flags?: number;
     message_reference?: Record<string, unknown>;
-    message_snapshots?: Record<string, unknown>[];
+    message_snapshots?: Record<string, unknown>;
     referenced_message?: message;
-    interaction_metadata?: Record<string, unknown>;
+    interaction_metadata?: { name: string };
     interaction?: interaction;
     thread?: Record<string, unknown>;
     components?: Record<string, unknown>[];
@@ -92,6 +92,7 @@ export interface message {
 }
 
 export interface createdMessage extends message {
+    activity_instance?: { id: string };
     guild_id?: string;
     member?: guildMember;
     mentions: user[];

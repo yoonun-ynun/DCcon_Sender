@@ -10,8 +10,6 @@ import type { embed } from '../interfaces/Payloads.js';
 import { createMessage, deleteAllReactionsForEmoji } from '../AJAX.js';
 import { addReactionEmoji } from '../MessageInteraction/addRecommendReaction.js';
 
-const EMOJI_ID = process.env['RECOMMEND_ID'];
-const BEECHU_ID = process.env['REVERSE_ID'];
 const cacheChannel: Map<string, channels> = new Map<string, channels>();
 
 export function reactionHandler(
@@ -20,6 +18,8 @@ export function reactionHandler(
     emoji_name: string | null,
     message_id: string,
 ) {
+    const EMOJI_ID = process.env['RECOMMEND_ID'];
+    const BEECHU_ID = process.env['REVERSE_ID'];
     if (emoji_name === '👍' || emoji_name === '👎') {
         handleThumb(message_id, emoji_name);
     }
@@ -49,6 +49,8 @@ async function handleThumb(message_id: string, emoji_name: string) {
 }
 
 function addCount(emoji_id: string, message_id: string) {
+    const EMOJI_ID = process.env['RECOMMEND_ID'];
+    const BEECHU_ID = process.env['REVERSE_ID'];
     const message = getRecommendQueue(message_id);
     if (!message) {
         console.error('MISSING MESSAGE');
@@ -62,6 +64,7 @@ function addCount(emoji_id: string, message_id: string) {
 }
 
 function removeCount(emoji_id: string, message_id: string) {
+    const EMOJI_ID = process.env['RECOMMEND_ID'];
     const message = getRecommendQueue(message_id);
     if (!message) {
         console.error('MISSING MESSAGE');

@@ -134,6 +134,116 @@
     background-color: #5865f2;
 }
 
+.replyFloatingButton {
+    position: fixed;
+    left: 12px;
+    bottom: 82px;
+    z-index: 1001;
+
+    max-width: 180px;
+    height: 38px;
+    padding: 0 14px;
+
+    border: 1px solid #5865f2;
+    border-radius: 999px;
+
+    background: #5865f2;
+    color: white;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+    user-select: none;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.replyFloatingButton.active {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+
+.replySheetBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1002;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.replySheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1003;
+
+    max-height: 55vh;
+    overflow-y: auto;
+
+    padding: 12px;
+    border-radius: 18px 18px 0 0;
+
+    background: white;
+    color: black;
+
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.replySheetHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.replySheetClose {
+    border: none;
+    background: transparent;
+    color: black;
+
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.replyItem {
+    padding: 10px;
+    border-radius: 10px;
+
+    color: black;
+    cursor: pointer;
+}
+
+.replyItem:hover {
+    background: #eeeeee;
+}
+
+.replyItem.selected {
+    background: #dbeafe;
+}
+
+.replyAuthor {
+    color: black;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.replyText {
+    color: #444;
+    font-size: 13px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .Double {
     position: fixed;
     top: 10px;
@@ -157,6 +267,10 @@
     font-weight: bold;
     cursor: pointer;
     user-select: none;
+}
+
+.platform_mobile .Double {
+    top: 66px;
 }
 
 .Double.mode_1 {

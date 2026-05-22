@@ -12,8 +12,12 @@ export async function GET(req) {
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
     let double = Number(searchParams.get('d'));
+    const reply = searchParams.get('r');
     if (!url || !cookieUsable || !channel || url === '' || channel === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
+    }
+    if (!reply || reply === 'undefined' || reply === 'null') {
+        reply = null;
     }
     if (isNaN(double)) {
         double = 1;
@@ -73,7 +77,11 @@ export async function GET(req) {
         image = new File([await res.blob()], 'main_image.' + ext);
     }
     if (!image) return NextResponse.json({ ok: false, reason: 'invalid image' }, { status: 400 });
-
+    const replyObject = {
+        type: 0,
+        message_id: reply,
+        channel_id: channel,
+    };
     const body = {
         embeds: [
             {
@@ -86,6 +94,7 @@ export async function GET(req) {
                 },
             },
         ],
+        message_reference: reply ? replyObject : undefined,
     };
 
     const createRes = await createMessage(channel, body, [image]);

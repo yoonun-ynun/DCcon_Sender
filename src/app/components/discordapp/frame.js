@@ -87,7 +87,7 @@ export default function Frame({ CLIENT_ID, tops }) {
                 client_id: CLIENT_ID,
                 response_type: 'code',
                 state: crypto.randomUUID(),
-                scope: ['identify', 'guilds'],
+                scope: ['identify', 'guilds', 'guilds.members.read'],
             });
             const code = res.code;
             if (!code) {
@@ -108,7 +108,12 @@ export default function Frame({ CLIENT_ID, tops }) {
             const login_res = await fetch('/api/embed/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, instanceId: discordSdk.instanceId, cookieUsable }),
+                body: JSON.stringify({
+                    code,
+                    instanceId: discordSdk.instanceId,
+                    cookieUsable,
+                    guildId: discordSdk.guildId,
+                }),
             });
             if (!login_res.ok) {
                 setMsg('로그인 실패');
@@ -147,10 +152,14 @@ export default function Frame({ CLIENT_ID, tops }) {
                         });
                         return await guilds.json();
                     },
-                    send: async (item, ch, d) => {
+                    send: async (item, ch, d, r) => {
                         const res = await fetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}`,
                         );
+                        return await res.json();
+                    },
+                    recents: async (ch) => {
+                        const res = await fetch(`/api/embed/recents?c=${cookieUsable}&ch=${ch}`);
                         return await res.json();
                     },
                 };
@@ -173,9 +182,15 @@ export default function Frame({ CLIENT_ID, tops }) {
                             headers: { 'Content-Type': 'application/json' },
                         });
                     },
-                    send: async (item, ch, d) => {
+                    send: async (item, ch, d, r) => {
                         const res = await authedFetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}`,
+                        );
+                        return await res.json();
+                    },
+                    recents: async (ch) => {
+                        const res = await authedFetch(
+                            `/api/embed/recents?c=${cookieUsable}&ch=${ch}`,
                         );
                         return await res.json();
                     },
@@ -213,7 +228,7 @@ export default function Frame({ CLIENT_ID, tops }) {
     }
 
     return (
-        <div>
+        <div className={platform.current === 'mobile' ? 'platform_mobile' : ''}>
             {platform.current === 'mobile' && (
                 <div
                     style={{

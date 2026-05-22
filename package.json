@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "next dev --turbopack",
-        "build": "next build --turbopack",
+        "build": "next build",
         "build:socket": "tsc -p socket/tsconfig.json",
         "start": "next start",
         "start:socket": "node dist/socket/server.js"

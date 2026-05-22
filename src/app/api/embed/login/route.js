@@ -6,12 +6,13 @@ import { encode } from 'next-auth/jwt';
 import { encrypt } from '@/app/api/embed/crypter.js';
 
 export async function POST(req) {
-    const { code, instanceId, cookieUsable } = await req.json();
+    const { code, instanceId, cookieUsable, guildId } = await req.json();
 
     if (cookieUsable) {
         const result = await signIn('discord-embedded', {
             code,
             instanceId,
+            guildId,
             redirect: false,
         });
         if (result?.error) {
@@ -20,7 +21,7 @@ export async function POST(req) {
         return NextResponse.json({ ok: true });
     }
     await connectDB();
-    const verified = await verifyEmbeddedProof({ code, instanceId });
+    const verified = await verifyEmbeddedProof({ code, instanceId, guildId });
 
     const tokenPayload = {
         discordId: verified.user_id,
