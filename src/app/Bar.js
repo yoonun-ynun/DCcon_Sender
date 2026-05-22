@@ -9,6 +9,7 @@ export default function Bar({ getting_word }) {
     const Blacklist = ['디시', '디시콘'];
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (getting_word) setWord(getting_word);
     }, [getting_word]);
 
@@ -23,6 +24,9 @@ export default function Bar({ getting_word }) {
         if (word.length < 2) {
             alert('검색어를 2글자 이상으로 입력 해 주세요');
             return;
+        }
+        if (word.length > 50) {
+            alert('최대 50자까지 입력 가능합니다.');
         }
         if (Blacklist.includes(word)) {
             alert('금지된 검색어 입니다.');

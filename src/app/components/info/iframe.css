@@ -60,7 +60,7 @@
     color: #aaa;
 }
 
-.title_field{
+#class_doc .title_field {
     padding: 1rem 0;
     margin-bottom: 3rem;
 }
@@ -107,8 +107,8 @@
 .dccon-wrapper {
     position: relative;
     display: inline-block;
-    width: 200px;
-    height: 200px;
+    flex: none;
+    overflow: hidden;
 }
 
 

@@ -102,13 +102,17 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
     return (
         <div>
             <div id={'selectorList'}>
-                <select name={'guild'} id={'guildList'} className={'selector'} onChange={setGuild}>
-                    <option value={''} selected={guild.id === ''}>
-                        서버를 선택 해 주세요
-                    </option>
+                <select
+                    name={'guild'}
+                    id={'guildList'}
+                    className={'selector'}
+                    onChange={setGuild}
+                    defaultValue={guild.id}
+                >
+                    <option value={''}>서버를 선택 해 주세요</option>
                     {guildList.map((item, i) => {
                         return (
-                            <option key={i} value={item.id} selected={item.id === guild.id}>
+                            <option key={i} value={item.id}>
                                 {item.name}
                             </option>
                         );
@@ -119,13 +123,12 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
                     id={'channelList'}
                     className={'selector'}
                     onChange={setChannel}
+                    defaultValue={guild.id}
                 >
-                    <option value={''} selected={channel.id === ''}>
-                        채널을 선택 해 주세요
-                    </option>
+                    <option value={''}>채널을 선택 해 주세요</option>
                     {channelList.map((item, i) => {
                         return (
-                            <option key={i} value={item.id} selected={item.id === channel.id}>
+                            <option key={i} value={item.id}>
                                 {item.name}
                             </option>
                         );

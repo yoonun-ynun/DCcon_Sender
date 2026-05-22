@@ -81,3 +81,19 @@ interface applicationCommandInteractionDataOption {
     options: applicationCommandInteractionDataOption[];
     focused: boolean;
 }
+
+export interface ReactionPayload {
+    user_id: string;
+    channel_id: string;
+    message_id: string;
+    guild_id?: string;
+    member?: guildMember;
+    emoji: {
+        id: string | null;
+        name: string | null;
+    };
+    message_author_id?: string;
+    burst: boolean;
+    burst_colors?: string[];
+    type: 0 | 1;
+}

@@ -1,4 +1,5 @@
-import type { interaction } from '../Discord/interfaces/types.js';
+import type { interaction, ReactionPayload } from '../Discord/interfaces/types.js';
+import type { message } from '../Discord/interfaces/primaryType.js';
 
 export const Opcode = {
     DISPATCH: 0,
@@ -17,9 +18,9 @@ export const Opcode = {
 
 export type Opcode = (typeof Opcode)[keyof typeof Opcode];
 
-export interface Message {
+export interface event {
     op: Opcode;
-    d?: Record<string, unknown> | interaction;
+    d?: Record<string, unknown> | interaction | message | ReactionPayload;
     s?: number;
     t?: string;
 }

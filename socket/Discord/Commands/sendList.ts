@@ -47,7 +47,7 @@ export default async function sendList(payload: CommandPayload) {
         {
             embeds: [
                 {
-                    description: '추가한 디시콘 목록을 확인합니다.',
+                    description: `추가한 디시콘 목록을 확인합니다. (${info.length}/25)`,
                     author: {
                         name: payload.user.user_name,
                         icon_url: payload.user.avatar_link,

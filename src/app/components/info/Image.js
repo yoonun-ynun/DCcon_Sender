@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import NextImage from 'next/image';
 import './iframe.css';
 
-export default function Image({ src, alt, key }) {
-    const [loaded, setLoaded] = useState(false);
+export default function Image({ src, alt, wrapperClassName = '', width, height }) {
+    const [loadedSrc, setLoadedSrc] = useState(null);
+    const loaded = loadedSrc === src;
     const imgRef = useRef(null);
 
     useEffect(() => {
@@ -11,11 +13,11 @@ export default function Image({ src, alt, key }) {
         if (!img) return;
 
         function handleLoad() {
-            setLoaded(true);
+            setLoadedSrc(src);
         }
 
         function handleError() {
-            setLoaded(true);
+            setLoadedSrc(src);
         }
 
         if (img.complete) {
@@ -32,9 +34,23 @@ export default function Image({ src, alt, key }) {
     }, [src]);
 
     return (
-        <div className="dccon-wrapper" key={key}>
+        <div
+            className={`dccon-wrapper ${wrapperClassName}`}
+            style={{
+                width,
+                height,
+            }}
+        >
             <div className="dccon-bg" style={{ opacity: loaded ? 0 : 1 }} />
-            <img ref={imgRef} src={src} alt={alt} className="dccon-real" />
+            <NextImage
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                className="dccon-real"
+                style={{ opacity: loaded ? 1 : 0 }}
+                width={width}
+                height={height}
+            />
         </div>
     );
 }

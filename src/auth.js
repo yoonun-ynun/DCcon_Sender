@@ -34,12 +34,14 @@ export const { handlers, auth, signIn } = NextAuth({
             credentials: {
                 code: { label: 'OAuth Code', type: 'text' },
                 instanceId: { label: 'Instance ID', type: 'text' },
+                guildId: { label: 'Guild ID', type: 'text' },
             },
             authorize: async function (credentials) {
                 const code = credentials?.code;
                 const instanceId = credentials?.instanceId;
-                if (!code || !instanceId) return null;
-                const verified = await verifyEmbeddedProof({ code, instanceId });
+                const guildId = credentials?.guildId;
+                if (!code || !instanceId || !guildId) return null;
+                const verified = await verifyEmbeddedProof({ code, instanceId, guildId });
                 if (!verified) return null;
 
                 return {
@@ -141,7 +143,7 @@ export async function refreshDiscordToken(refreshToken) {
     };
 }
 
-export async function verifyEmbeddedProof({ code, instanceId }) {
+export async function verifyEmbeddedProof({ code, instanceId, guildId }) {
     const conv_code = await fetch('https://discord.com/api/v10/oauth2/token', {
         method: 'POST',
         body: new URLSearchParams({
@@ -181,7 +183,7 @@ export async function verifyEmbeddedProof({ code, instanceId }) {
     }
     const token_json = await token_res.json();
     const user_id = token_json['id'];
-    const username = token_json['username'];
+    let username = token_json['username'];
     const avatar = token_json['avatar'];
     let avatar_url;
     if (avatar) {
@@ -196,6 +198,22 @@ export async function verifyEmbeddedProof({ code, instanceId }) {
     if (!user_id) {
         console.log('userid 없음');
         return null;
+    }
+    const memberRes = await fetch(
+        `https://discord.com/api/v10/users/@me/guilds/${guildId}/member`,
+        {
+            headers: {
+                Authorization: `Bearer ${access_token}`,
+            },
+        },
+    );
+
+    const member = await memberRes.json();
+
+    const serverName = member.nick;
+
+    if (serverName) {
+        username = serverName;
     }
 
     const instance_res = await fetch(

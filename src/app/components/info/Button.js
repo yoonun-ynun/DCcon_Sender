@@ -12,6 +12,7 @@ export default function Button({ lists, title, idx, main }) {
     const add = storeList((s) => s.add);
     const has = storeList((s) => s.has);
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (has(idx)) setIsExist(true);
         else {
             setIsExist(false);

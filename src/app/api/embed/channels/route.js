@@ -25,5 +25,6 @@ export async function POST(req) {
             return { id: item.id, name: item.name ?? '알 수 없는 채널' };
         })
         .filter(Boolean);
+    console.log(channelList);
     return NextResponse.json({ ok: true, channelList });
 }

@@ -44,14 +44,17 @@ export interface DiscordMessageBody {
     };
 }
 
-export type Command_List = 'list' | 'select' | 'profile';
+export type Command_List = 'list' | 'select' | 'profile' | '개추/비추 반응 추가';
 
 export interface CommandPayload {
     name: Command_List;
+    guild_id?: string;
+    message_id?: string;
     user?: {
         user_name?: string;
         user_id: string;
         avatar_link?: string;
+        permission?: string;
     };
     application: {
         application_id: string;
@@ -63,6 +66,9 @@ export interface CommandPayload {
         selectedCon?: number;
         index?: string;
         selector?: number;
+        count?: number;
+        decount?: number;
+        auto?: boolean;
     };
 }
 
@@ -129,7 +135,7 @@ export interface editMessage {
     };
 }
 
-interface embed {
+export interface embed {
     title?: string;
     type?: string;
     description?: string;

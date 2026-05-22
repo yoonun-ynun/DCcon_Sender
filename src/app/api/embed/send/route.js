@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth.js';
 import { headers } from 'next/headers';
 import { decode } from 'next-auth/jwt';
+import { getDoubleImage } from '@/app/api/embed/send/getDoubleImage.js';
 
 const base_url = 'https://discord.com/api/v10';
 
@@ -10,8 +11,17 @@ export async function GET(req) {
     const url = searchParams.get('u');
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
-    if (!url || !cookieUsable || !channel || url === '' || channel === '')
+    let double = Number(searchParams.get('d'));
+    const reply = searchParams.get('r');
+    if (!url || !cookieUsable || !channel || url === '' || channel === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
+    }
+    if (!reply || reply === 'undefined' || reply === 'null') {
+        reply = null;
+    }
+    if (isNaN(double)) {
+        double = 1;
+    }
 
     let session;
 
@@ -29,6 +39,7 @@ export async function GET(req) {
         }
 
         const jwt = h.slice('Bearer '.length);
+        /**@type {{name: string, discordId: string, image: string}} */
         const payload = await decode({
             token: jwt,
             secret: process.env.AUTH_SECRET,
@@ -42,13 +53,35 @@ export async function GET(req) {
         };
     }
 
-    const res = await fetch(`http://localhost:3000/api/img?u=${encodeURIComponent(url)}`);
-    if (!res.ok)
-        return NextResponse.json({ ok: false, reason: 'failed fetching image' }, { status: 400 });
-    const ext = res.headers.get('Content-Type').split('/')[1] ?? 'png';
-    const image = new File([await res.blob()], 'main_image.' + ext);
+    let image;
+    let ext;
+    if (double > 1) {
+        const urls = JSON.parse(url).urls;
+        const result = await getDoubleImage(urls);
+        if (!result) {
+            return NextResponse.json(
+                { ok: false, reason: 'failed fetching image' },
+                { status: 400 },
+            );
+        }
+        image = result.file;
+        ext = result.ext;
+    } else {
+        const res = await fetch(`http://localhost:3000/api/img?u=${encodeURIComponent(url)}`);
+        if (!res.ok)
+            return NextResponse.json(
+                { ok: false, reason: 'failed fetching image' },
+                { status: 400 },
+            );
+        ext = res.headers.get('Content-Type').split('/')[1] ?? 'png';
+        image = new File([await res.blob()], 'main_image.' + ext);
+    }
     if (!image) return NextResponse.json({ ok: false, reason: 'invalid image' }, { status: 400 });
-
+    const replyObject = {
+        type: 0,
+        message_id: reply,
+        channel_id: channel,
+    };
     const body = {
         embeds: [
             {
@@ -61,6 +94,7 @@ export async function GET(req) {
                 },
             },
         ],
+        message_reference: reply ? replyObject : undefined,
     };
 
     const createRes = await createMessage(channel, body, [image]);
@@ -93,7 +127,9 @@ async function createMessage(channel_id, body, files) {
         headers: headers,
         body: form,
     };
-    return await sender(url, option);
+    const result = await sender(url, option);
+    console.log(result.message);
+    return result;
 }
 
 async function sender(url, option) {
@@ -102,6 +138,7 @@ async function sender(url, option) {
         if (response.status === 204) {
             return { ok: true };
         }
+        if (!response.ok) return { ok: false, message: await response.json() };
         return {
             ok: true,
             message: await response.json(),
@@ -110,9 +147,10 @@ async function sender(url, option) {
         console.error(e);
         if (!(e instanceof Error)) {
             console.log(e);
-            return;
+            throw Error('Discord Error');
         }
         const message = e?.message ?? '';
+        console.log(message);
         return {
             ok: false,
             message: message,
