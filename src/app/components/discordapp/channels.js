@@ -107,7 +107,7 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
                     id={'guildList'}
                     className={'selector'}
                     onChange={setGuild}
-                    defaultValue={guild.id}
+                    value={guild.id}
                 >
                     <option value={''}>서버를 선택 해 주세요</option>
                     {guildList.map((item, i) => {
@@ -123,7 +123,7 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
                     id={'channelList'}
                     className={'selector'}
                     onChange={setChannel}
-                    defaultValue={channel.id}
+                    value={channel.id}
                 >
                     <option value={''}>채널을 선택 해 주세요</option>
                     {channelList.map((item, i) => {

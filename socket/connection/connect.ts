@@ -73,7 +73,7 @@ function manageSocket(event: WebSocket.RawData) {
                     since: null,
                     activities: [
                         {
-                            name: '봇인 사실을 즐기는 중',
+                            name: '/activiy | yoonun.com',
                             type: 0,
                         },
                     ],
