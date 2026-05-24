@@ -309,29 +309,6 @@ function createCommand() {
         console.log('명령어 설정 환료');
     });
     createGlobalCommand({
-        name: 'invite',
-        description: '개인용 명령어',
-        type: 1,
-        options: [
-            {
-                type: 4,
-                name: 'days',
-                description: '대기 일수',
-                min_value: 1,
-                max_value: 100,
-                required: true,
-            },
-        ],
-    })
-        .then((res) => {
-            if (res?.ok !== true) {
-                console.log(res?.message);
-                return;
-            }
-            console.log('명령어 설정 환료');
-        })
-        .catch(() => console.error('명령어 설정에 실패하였습니다.'));
-    createGlobalCommand({
         name: 'activity',
         description: '봇을 실행시키기 위한 액티비티 링크를 반환합니다.',
         type: 1,
