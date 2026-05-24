@@ -493,4 +493,9 @@ a {
     text-align: center;
   }
 
+  .dccon-wrapper.hot-dccon-image{
+    width: 145px !important;
+    height: 145px !important;
+  }
+
 }
