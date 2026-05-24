@@ -3,6 +3,7 @@ import { auth } from '@/auth.js';
 import { headers } from 'next/headers';
 import { decode } from 'next-auth/jwt';
 import State from '@/models/State.js';
+import { connectDB } from '@/lib/mongodb.js';
 
 export const runtime = 'nodejs';
 
@@ -10,6 +11,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const cookieUsable = searchParams.get('c');
     const channelId = searchParams.get('ch');
+    await connectDB();
 
     if (!cookieUsable || !channelId) {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });

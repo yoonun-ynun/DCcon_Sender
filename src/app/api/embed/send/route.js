@@ -12,7 +12,7 @@ export async function GET(req) {
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
     let double = Number(searchParams.get('d'));
-    const reply = searchParams.get('r');
+    let reply = searchParams.get('r');
     if (!url || !cookieUsable || !channel || url === '' || channel === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
     }

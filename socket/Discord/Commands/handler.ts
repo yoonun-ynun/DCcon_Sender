@@ -6,6 +6,7 @@ import { CommandError } from '../Errors/CommandError.js';
 import { editInteractionResponse } from '../AJAX.js';
 import initializeRecommend from './initializeRecommend.js';
 import addReaction from './addReaction.js';
+import sendActivity from './sendActivity.js';
 
 const Command: Record<string, (payload: CommandPayload) => Promise<void>> = {
     list: sendList,
@@ -13,6 +14,7 @@ const Command: Record<string, (payload: CommandPayload) => Promise<void>> = {
     profile: selectProfile,
     init: initializeRecommend,
     '개추/비추 반응 추가': addReaction,
+    activity: sendActivity,
 };
 
 const errorList = {

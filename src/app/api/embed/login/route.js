@@ -20,6 +20,10 @@ export async function POST(req) {
         }
         return NextResponse.json({ ok: true });
     }
+
+    if (!guildId) {
+        return NextResponse.json({ ok: false, reason: 'guildId_required' }, { status: 400 });
+    }
     await connectDB();
     const verified = await verifyEmbeddedProof({ code, instanceId, guildId });
 

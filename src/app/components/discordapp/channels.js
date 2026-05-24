@@ -70,7 +70,7 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
         return () => {
             called = true;
         };
-    }, [usingGuildId, usingChannelId, getters]);
+    }, [usingGuildId, usingChannelId, getters, set]);
 
     async function setGuild(event) {
         const guild_id = event.currentTarget.value;
@@ -123,7 +123,7 @@ export default function Channels({ usingGuildId, usingChannelId, getters }) {
                     id={'channelList'}
                     className={'selector'}
                     onChange={setChannel}
-                    defaultValue={guild.id}
+                    defaultValue={channel.id}
                 >
                     <option value={''}>채널을 선택 해 주세요</option>
                     {channelList.map((item, i) => {

@@ -45,7 +45,7 @@ export async function embedSender(data: string, channel_id: string): Promise<voi
             image: { url: 'attachment://image.png' },
             footer: {
                 text: 'dcinside',
-                icon_url: 'attachment://logo.png`',
+                icon_url: 'attachment://logo.png',
             },
         };
         console.log(embed);

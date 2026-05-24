@@ -159,7 +159,7 @@ export async function createGuildChannel(
             name,
             type,
             parent_id: parent_id ? parent_id : null,
-            position: position ? position : null,
+            position: position !== undefined ? position : null,
         }),
     };
     return await sender(url, option);

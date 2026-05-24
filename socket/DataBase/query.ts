@@ -29,7 +29,7 @@ export async function searchChannel(
 > {
     const result = await Channel.findOne(
         { guild_id: guild_id },
-        { _id: 0, channel_id: 1, version: 1, count: 1, decount: 1 },
+        { _id: 0, channel_id: 1, version: 1, count: 1, decount: 1, auto: 1 },
     ).lean<{
         channel_id: string[];
         count: number;

@@ -44,7 +44,7 @@ export interface DiscordMessageBody {
     };
 }
 
-export type Command_List = 'list' | 'select' | 'profile' | '개추/비추 반응 추가';
+export type Command_List = 'list' | 'select' | 'profile' | '개추/비추 반응 추가' | 'activity';
 
 export interface CommandPayload {
     name: Command_List;
