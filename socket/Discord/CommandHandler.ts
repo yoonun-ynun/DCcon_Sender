@@ -59,7 +59,7 @@ async function handleReaction(message: event, isAdd: boolean) {
     if (message.d === undefined) return;
     const event = message.d as ReactionPayload;
     const emoji = event.emoji;
-    reactionHandler(isAdd, emoji.id, emoji.name, event.message_id);
+    await reactionHandler(isAdd, emoji.id, emoji.name, event.message_id);
 }
 
 async function handleMessage(message: event) {
@@ -106,7 +106,10 @@ async function handleInteraction(message: event) {
     await createInteractionResponse(interaction_id, interaction_token, {
         type: 5,
         data: {
-            flags: command_name === '개추/비추 반응 추가' ? 1 << 6 : undefined,
+            flags:
+                command_name === '개추/비추 반응 추가' || command_name === 'activity'
+                    ? 1 << 6
+                    : undefined,
         },
     });
 
@@ -306,31 +309,9 @@ function createCommand() {
         console.log('명령어 설정 환료');
     });
     createGlobalCommand({
-        name: 'invite',
-        description: '개인용 명령어',
+        name: 'activity',
+        description: '봇을 실행시키기 위한 액티비티 링크를 반환합니다.',
         type: 1,
-        options: [
-            {
-                type: 4,
-                name: 'days',
-                description: '대기 일수',
-                min_value: 1,
-                max_value: 100,
-                required: true,
-            },
-        ],
-    })
-        .then((res) => {
-            if (res?.ok !== true) {
-                console.log(res?.message);
-                return;
-            }
-            console.log('명령어 설정 환료');
-        })
-        .catch(() => console.error('명령어 설정에 실패하였습니다.'));
-    createGlobalCommand({
-        name: '개추/비추 반응 추가',
-        type: 3,
     }).then((res) => {
         if (res?.ok !== true) {
             console.log(res?.message);

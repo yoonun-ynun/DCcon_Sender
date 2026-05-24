@@ -12,7 +12,7 @@ import { addReactionEmoji } from '../MessageInteraction/addRecommendReaction.js'
 
 const cacheChannel: Map<string, channels> = new Map<string, channels>();
 
-export function reactionHandler(
+export async function reactionHandler(
     isAdd: boolean,
     emoji_id: string | null,
     emoji_name: string | null,
@@ -21,12 +21,12 @@ export function reactionHandler(
     const EMOJI_ID = process.env['RECOMMEND_ID'];
     const BEECHU_ID = process.env['REVERSE_ID'];
     if (emoji_name === '👍' || emoji_name === '👎') {
-        handleThumb(message_id, emoji_name);
+        void handleThumb(message_id, emoji_name);
     }
     if (emoji_id !== EMOJI_ID && emoji_id !== BEECHU_ID) {
         return;
     }
-    if (isAdd) addCount(emoji_id, message_id);
+    if (isAdd) await addCount(emoji_id, message_id);
     else removeCount(emoji_id, message_id);
 }
 
@@ -48,9 +48,8 @@ async function handleThumb(message_id: string, emoji_name: string) {
     addReactionEmoji(data.channel_id, data.message_id);
 }
 
-function addCount(emoji_id: string, message_id: string) {
+async function addCount(emoji_id: string, message_id: string) {
     const EMOJI_ID = process.env['RECOMMEND_ID'];
-    const BEECHU_ID = process.env['REVERSE_ID'];
     const message = getRecommendQueue(message_id);
     if (!message) {
         console.error('MISSING MESSAGE');
@@ -60,7 +59,7 @@ function addCount(emoji_id: string, message_id: string) {
     if (emoji_id === EMOJI_ID) message.count++;
     else message.decount++;
     appendRecommendQueue(message);
-    verifyCount(emoji_id === EMOJI_ID, message);
+    await verifyCount(emoji_id === EMOJI_ID, message);
 }
 
 function removeCount(emoji_id: string, message_id: string) {
@@ -90,6 +89,7 @@ async function verifyCount(isRecommend: boolean, message: RecommendText) {
             count: result.count,
             decount: result.decount,
         };
+        cacheChannel.set(message.guild_id, channels);
     } else {
         channels = cached;
     }

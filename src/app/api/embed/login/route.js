@@ -8,6 +8,10 @@ import { encrypt } from '@/app/api/embed/crypter.js';
 export async function POST(req) {
     const { code, instanceId, cookieUsable, guildId } = await req.json();
 
+    if (!guildId || !code || !instanceId || cookieUsable === undefined) {
+        return NextResponse.json({ ok: false, reason: 'missing required fields' }, { status: 400 });
+    }
+
     if (cookieUsable) {
         const result = await signIn('discord-embedded', {
             code,
@@ -20,6 +24,7 @@ export async function POST(req) {
         }
         return NextResponse.json({ ok: true });
     }
+
     await connectDB();
     const verified = await verifyEmbeddedProof({ code, instanceId, guildId });
 
