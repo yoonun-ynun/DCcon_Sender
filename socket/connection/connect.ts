@@ -73,7 +73,9 @@ function manageSocket(event: WebSocket.RawData) {
                     since: null,
                     activities: [
                         {
-                            name: '/activiy | yoonun.com',
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            //@ts-expect-error
+                            name: `/activiy | ${process.env['AUTH_URL'].split('//')[1]}`,
                             type: 0,
                         },
                     ],
