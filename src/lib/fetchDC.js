@@ -44,10 +44,10 @@ export async function month_top() {
     return response;
 }
 
-export async function search(text) {
+export async function search(text, mode) {
     async function getSearch(word, page) {
         let result = await fetch(
-            `https://dccon.dcinside.com/hot/${page}/title/${encodeURIComponent(word)}`,
+            `https://dccon.dcinside.com/hot/${page}/${mode}/${encodeURIComponent(word)}`,
             {
                 method: 'GET',
                 headers: {

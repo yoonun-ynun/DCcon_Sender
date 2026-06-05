@@ -1,17 +1,12 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Bar({ getting_word }) {
-    const [word, setWord] = useState('');
+    const [word, setWord] = useState(getting_word || '');
+    const [search, setSearch] = useState('title');
     const router = useRouter();
-    const Blacklist = ['디시', '디시콘'];
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (getting_word) setWord(getting_word);
-    }, [getting_word]);
+    const Blacklist = ['디시', '디시콘', '시콘'];
 
     function onKeyDown(event) {
         if (event.key === 'Enter') {
@@ -32,21 +27,34 @@ export default function Bar({ getting_word }) {
             alert('금지된 검색어 입니다.');
             return;
         }
-        router.push(`/search?word=${encodeURIComponent(word)}`);
+        router.push(`/search?word=${encodeURIComponent(word)}&mode=${search}`);
     }
 
     return (
-        <div id={'Search'}>
-            <div id={'Search_bar'}>
+        <div id="Search">
+            <div id="Search_bar">
+                <select
+                    className="search-select"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                >
+                    <option value="title">이름</option>
+                    <option value="tags">태그</option>
+                </select>
+
+                <div className="search-divider"></div>
+
                 <input
-                    className={'bar'}
+                    className="bar"
+                    placeholder="검색어를 입력하세요"
                     value={word}
                     onChange={(e) => setWord(e.target.value)}
                     onKeyDown={onKeyDown}
                 />
+
                 <a onClick={Redirect} style={{ display: 'flex' }}>
-                    <button className={'Search_bt'}>
-                        <img src={'/search.png'} alt={'검색하기'} id={'Search_image'} />
+                    <button className="Search_bt" aria-label="Search">
+                        <img src="/search.png" alt="검색하기" id="Search_image" />
                     </button>
                 </a>
             </div>

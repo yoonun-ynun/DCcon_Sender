@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic';
 export default async function Page({ searchParams }) {
     const params = await searchParams;
     const word = params.word;
-    const promise = search(word);
+    const mode = params.mode;
+    const promise = search(word, mode);
 
     return (
         <div>

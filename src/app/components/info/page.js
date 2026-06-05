@@ -23,23 +23,32 @@ export default async function Page({ searchParams }) {
                 <div className={'info_wrap'}>
                     <div className={'text_field'}>
                         <span className={'title_field'}>{data.title}</span>
-                        <br />
-                        <span id={'description'}>{data.description}</span>
+                        <div id={'description'}>{data.description}</div>
                     </div>
                     <Button lists={data.path} title={data.title} idx={idx} main={data.main_img} />
                 </div>
             </div>
-            <hr />
+
+            <hr
+                style={{
+                    border: 'none',
+                    height: '1px',
+                    background: 'rgba(255,255,255,0.1)',
+                    margin: '0 2rem',
+                }}
+            />
+
             <div className={'image_list'}>
                 {data.path.map((item, i) => {
                     return (
-                        <Image
-                            src={`/api/img?u=${encodeURIComponent(item.addr)}`}
-                            alt={'path image'}
-                            key={i}
-                            width={200}
-                            height={200}
-                        />
+                        <div className="premium-item-wrapper" key={i}>
+                            <Image
+                                src={`/api/img?u=${encodeURIComponent(item.addr)}`}
+                                alt={'path image'}
+                                width={200}
+                                height={200}
+                            />
+                        </div>
                     );
                 })}
             </div>

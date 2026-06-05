@@ -15,26 +15,25 @@ export default function List({ Params }) {
 
     return (
         <div>
-            <div className={'list_wrapper'}>
-                <div className={'list'}>
+            <div className="list_wrapper">
+                <div className="dccon-grid">
                     {Params.map((item, i) => {
                         return (
-                            <span
-                                id={`hot_${i}`}
-                                className={'hot_item'}
+                            <div
+                                className="premium-card"
                                 dccon-idx={item.idx}
                                 onClick={iframe_clicker}
                                 key={i}
                             >
-                                <div className={'img-bg'}>
+                                <div className="img-bg">
                                     <img
                                         src={`/api/img?u=${item.img.substring(6)}`}
-                                        alt={'DCcon image'}
-                                        className={'image'}
+                                        alt={item.title}
+                                        className="image"
                                     />
                                 </div>
-                                <div className={'title_field'}>{item.title}</div>
-                            </span>
+                                <div className="title_field">{item.title}</div>
+                            </div>
                         );
                     })}
                 </div>

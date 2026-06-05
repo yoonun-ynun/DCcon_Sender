@@ -1,39 +1,46 @@
-.image_list{
+/* iframe.css */
+
+/* --- 기존 레이아웃 구조 유지 --- */
+.image_list {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem; /* 간격 살짝 넓혀 시원하게 */
     margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     flex: 1 1 auto;
     overflow-y: auto;
+    padding: 0 1rem;
 }
 
-#class_doc{
+#class_doc {
     display: flex;
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    color: white; /* 다크모드 기본 텍스트 색상 */
 }
 
-#main{
-    display: flex;              /* 이미지와 텍스트를 가로로 배치 */
-    align-items: center;    /* 위쪽 정렬 (필요에 따라 center 가능) */
-    gap: 10px;                  /*이미지와 텍스트 간격*/
-    margin: 1rem 4.5rem;
+#main {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* 여백 약간 넓힘 */
+    margin: 2rem 4.5rem;
     flex: 0 0 auto;
 }
 
 .info_wrap {
     display: flex;
-    align-items: center;     /* 텍스트와 버튼을 한 줄에 정렬 */
+    align-items: center;
     justify-content: space-between;
-    flex: 1;                 /* 남은 공간 차지 */
+    flex: 1;
 }
 
-#main-img{
+/* --- 메인 이미지 및 텍스트 스타일링 --- */
+#main-img {
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .dccon_text {
@@ -42,84 +49,124 @@
     gap: 4px;
 }
 
-.text_field {
-    font-weight: bold;
-    font-size: 1.1rem;
+#class_doc .text_field {
     padding: 1rem 0;
     width: 70%;
 }
 
-.button_group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+#class_doc .title_field {
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+#class_doc #description {
+    font-size: 0.95rem;
+    color: #9ca3af;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    display: block;
 }
 
 #description {
-    font-size: 0.9rem;
-    color: #aaa;
+    font-size: 0.95rem;
+    color: #9ca3af;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    display: block;
 }
 
-#class_doc .title_field {
-    padding: 1rem 0;
-    margin-bottom: 3rem;
+/* --- 프리미엄 버튼 그룹 --- */
+.button_group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.btn_download{
-    border: 2px solid mediumturquoise;
-    border-radius: 2rem;
-    width: 10rem;
-    height: 3rem;
+.btn_download, .btn_add, .btn_added {
+    border-radius: 99px;
+    width: 11rem;
+    height: 3.2rem;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    background-color: black;
-    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn_add{
-    border: 2px solid white;
-    border-radius: 2rem;
-    width: 10rem;
-    height: 3rem;
-    cursor: pointer;
-    background-color: black;
-    color: white;
+/* 다운로드 버튼: 디스코드 블루 톤 */
+.btn_download {
+    background: rgba(88, 101, 242, 0.1);
+    color: #5865f2;
+    border: 1px solid rgba(88, 101, 242, 0.3);
 }
-
-.btn_added{
-    border: 2px solid #acacac;
-    border-radius: 2rem;
-    width: 10rem;
-    height: 3rem;
-    background-color: #acacac;
-    color: black;
-}
-
 .btn_download:hover {
-    background-color: mediumturquoise;
-    color: black;
+    background: rgba(88, 101, 242, 0.2);
+    box-shadow: 0 0 15px rgba(88, 101, 242, 0.3);
+    transform: translateY(-2px);
 }
 
-.btn_add:hover{
-    background-color: white;
-    color: black;
+/* 추가 버튼: 프리미엄 퍼플 그라데이션 */
+.btn_add {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+    color: #e879f9;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.btn_add:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+    border-color: rgba(168, 85, 247, 0.6);
+    transform: translateY(-2px);
 }
 
-.dccon-wrapper {
-    position: relative;
-    display: inline-block;
-    flex: none;
-    overflow: hidden;
+/* 추가됨/로딩 버튼: 글래스모피즘 딤 처리 */
+.btn_added {
+    background: rgba(255, 255, 255, 0.05);
+    color: #6b7280;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
 }
 
-
-.dccon-bg {
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.6);
-    transition: opacity 0.3s ease;
-    z-index: 0;
+/* 다운로드 프로그레스 바 */
+#progress {
+    width: 100%;
+    margin-top: 4px;
+}
+#download_progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+}
+#download_progress::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+#download_progress::-webkit-progress-value {
+    background: linear-gradient(90deg, #5865f2, #a855f7);
+    border-radius: 4px;
 }
 
+/* --- 개별 디시콘 호버 프리미엄 스타일 --- */
+/* --- 개별 디시콘 전시용 프레임 (인터랙션 제거) --- */
+.premium-item-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 10px;
+    /* cursor: pointer 와 hover 애니메이션 제거 */
+}
+
+.premium-item-wrapper .dccon-wrapper{
+    width: 200px;
+    height: 200px;
+}
+
+/* dccon-real 확대 애니메이션도 제거 (기존 코드 덮어쓰기) */
 .dccon-real {
     position: relative;
     z-index: 1;
@@ -127,48 +174,99 @@
     max-width: 100%;
     width: 100%;
     height: 100%;
-
     font-size: 0;
     color: transparent;
+    /* transition: transform 0.3s ease; 제거됨 */
 }
 
+/* --- 기존 민감한 CSS (절대 건드리지 않음) --- */
+.dccon-wrapper {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    overflow: hidden;
+}
+.dccon-bg {
+    position: absolute;
+    inset: 0;
+    /* 기존 흰색 배경을 다크모드에 맞춰 반투명 짙은 색으로 변경 */
+    background: rgba(255, 255, 255, 0.05);
+    transition: opacity 0.3s ease;
+    z-index: 0;
+    border-radius: 12px;
+}
+.dccon-real {
+    position: relative;
+    z-index: 1;
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    font-size: 0;
+    color: transparent;
+    transition: transform 0.3s ease; /* 호버 확대를 위한 트랜지션 추가 */
+}
 .dccon_img {
     font-size: 0;
     color: transparent;
 }
 
+/* --- 모바일 반응형 --- */
 @media screen and (max-width: 780px){
     .dccon_img{
         height: 100px;
         width: 100px;
     }
     #main{
-        margin: 1rem;
+        margin: 1.5rem;
+        gap: 15px;
     }
     .info_wrap {
-        flex-direction: column;      /* 제목/설명과 버튼을 세로로 쌓음 */
-        align-items: flex-start;     /* 왼쪽 정렬 */
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
-
     .button_group {
-        flex-direction: column;       /* 버튼끼리도 세로로 줄바꿈 */
+        flex-direction: column;
         width: 100%;
-        gap: 6px;
+        gap: 10px;
     }
-    .btn_download{
+    .btn_download, .btn_add, .btn_added {
         width: 100%;
-    }
-    .btn_add{
-        width: 100%;
-    }
-    .btn_added{
-        width: 100%;
+        height: 3rem;
     }
     .text_field{
         width: 100%;
+        padding: 0;
+    }
+    .title_field {
+        font-size: 1.4rem;
     }
     .dccon-wrapper{
+        width: 100%;
+        height: 100%;
+    }
+    .premium-item-wrapper .dccon-wrapper{
         width: 100px !important;
         height: 100px !important;
+    }
+
+    #class_doc #description{
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical !important;
+        -webkit-line-clamp: 2 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        word-break: break-all !important;
+    }
+}
+
+@media screen and (max-width: 400px){
+    .premium-item-wrapper .dccon-wrapper{
+        width: 80px !important;
+        height: 80px !important;
+    }
+    .image_list{
+        gap: 5px;
     }
 }

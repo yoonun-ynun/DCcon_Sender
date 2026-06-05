@@ -1,176 +1,297 @@
-/*디시콘 선택창*/
-.selectList{
+/* style.css */
+
+/* =========================================
+   1. 길드/채널 선택창 (최상단)
+========================================= */
+#selectorList {
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 10px;
+    gap: 12px;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background: linear-gradient(to bottom, rgba(5, 5, 7, 0.8), transparent); /* 상단 부드러운 음영 */
+}
+
+.selector {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    width: 300px;
+    height: 45px;
+    border-radius: 12px;
+    padding: 0 15px;
+    outline: none;
+    font-size: 14px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.selector:focus {
+    border-color: rgba(88, 101, 242, 0.5) !important;
+    box-shadow: 0 0 15px rgba(88, 101, 242, 0.2);
+}
+
+.selector option {
+    background-color: #1a1a24;
+    color: white;
+}
+
+/* =========================================
+   2. 이미지 리스트 (디시콘 그리드 영역)
+========================================= */
+.imageWrap {
+    display: flex;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    padding: 10px 15px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.image_list {
+    display: grid; /* inline-grid 대신 일반 grid 사용 */
+    grid-template-columns: repeat(auto-fill, 110px); /* 1fr 제거: 무한 팽창 방지! 딱 110px로 고정 */
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1600px; /* 기존 600px 제한을 풀어 와이드 모니터 전체를 활용하도록 변경 */
+}
+
+.dcconImageItem {
+    width: 110px; /* 100% 대신 고정 크기 부여 */
+    height: 110px; /* 고정 크기 부여 */
+    border-radius: 12px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dcconImageItem:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.dcconImageItem.selected_dccon {
+    background-color: rgba(88, 101, 242, 0.2);
+    border: 1px solid #5865f2;
+    box-shadow: 0 0 15px rgba(88, 101, 242, 0.3);
+    transform: scale(1.02);
+}
+
+/* =========================================
+   3. 디시콘 선택창 (하단 독 Dock)
+========================================= */
+.selectList {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    border-top: 1px solid black;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     justify-content: center;
-    background-color: white;
+    background-color: rgba(10, 10, 15, 0.85); /* 다크 글래스모피즘 */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     z-index: 1000;
+    padding: 5px 0;
 }
 
-#DCconList{
+#DCconList {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
-    align-content: center;
+    align-items: center;
     justify-content: flex-start;
     -webkit-overflow-scrolling: touch;
     gap: 8px;
+    padding: 0 10px;
 }
 
-.dcconSelect {
-    width: 100px;
-    height: 50px;
-    font-size: 10px;
-    border: none;
-    background: white;
+/* PC 환경 마우스 조작을 고려한 스크롤바 두께 및 가시성 롤백 */
+#DCconList::-webkit-scrollbar {
+    height: 10px; /* 기존 4px에서 10px로 키워서 잡기 편하게! */
+}
+#DCconList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35); /* 마우스로 찾기 쉽도록 색상도 살짝 더 밝게 */
+    border-radius: 10px;
+}
+#DCconList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5); /* 마우스를 올렸을 때 더 밝아지는 피드백 추가 */
+}
+
+.item {
+    flex: none;
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
     cursor: pointer;
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    text-align: center;
-    text-align-last: center;
-    padding: 0;
+    overflow: hidden;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
 }
 
-.dcconSelect::-ms-expand {
-    display: none;
+.item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.item.active {
+    background-color: rgba(88, 101, 242, 0.2);
+    border: 1px solid rgba(88, 101, 242, 0.5);
+}
+
+.item img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    border-radius: 8px;
 }
 
 .stickySelectItem {
     position: sticky;
     left: 0;
     z-index: 10;
-    background: white;
-    box-shadow: 4px 0 6px rgba(0, 0, 0, 0.08);
+    background-color: #1a1a24 !important; /* 뒤가 비치지 않도록 완전 불투명한 다크 컬러 적용 */
+    box-shadow: 8px 0 12px -2px rgba(0, 0, 0, 0.8); /* 그림자를 조금 더 강하게 줘서 떠있는 느낌 강조 */
+    border-radius: 12px;
+    margin-right: 4px;
 }
 
-.item{
-    flex: none;
-    width: 60px;
-    height: 60px;
-    padding-top: 5px;
+.dcconSelect {
+    width: 100%;
+    height: 100%;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
     cursor: pointer;
-    overflow: hidden;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    text-align-last: center;
+    padding: 0;
+    outline: none;
+}
+.dcconSelect option {
+    background: #1a1a24;
+    color: white;
 }
 
-.item.active{
-    background-color: lightblue;
-}
-
-.item img{
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-}
-
-/* 길드/채널 선택창 */
-
-.selector{
-    border: 1px solid black;
-    width: 300px;
-    height: 50px;
-    border-radius: 10px;
-}
-
-#selectorList{
-    display: flex;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 10px;
-    gap: 10px;
-    justify-content: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-/* 이미지 리스트 */
-
-.image_list{
-    display: inline-grid;
-    grid-template-columns: repeat(auto-fill, 100px);
-    gap: 10px;
-    justify-content: center;
-    width: 100%;
-}
-
-.imageWrap{
-    display: flex;
-    left: 0;
-    right: 0;
-    width: 100%;
-    flex-direction: row;
-    justify-content: center;
-    padding-left: 5px;
-    padding-right: 5px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-}
-
-.dcconImageItem {
-    width: 110px;
-    height: 110px;
-    border-radius: 10px;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dcconImageItem.selected_dccon {
-    background-color: #5865f2;
-}
-
+/* =========================================
+   4. 플로팅 버튼 (답장 & 싱글콘/더블콘)
+========================================= */
 .replyFloatingButton {
     position: fixed;
-    left: 12px;
-    bottom: 82px;
+    left: 15px;
+    bottom: 85px; /* 독 높이에 맞춰 조정 */
     z-index: 1001;
-
     max-width: 180px;
-    height: 38px;
-    padding: 0 14px;
-
-    border: 1px solid #5865f2;
-    border-radius: 999px;
-
-    background: #5865f2;
-    color: white;
-
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid rgba(88, 101, 242, 0.4);
+    border-radius: 99px;
+    background: rgba(88, 101, 242, 0.15); /* 반투명 모던 스타일 */
+    color: #8fa0ff;
     font-size: 14px;
-    font-weight: bold;
-
+    font-weight: 600;
     cursor: pointer;
     user-select: none;
-
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.replyFloatingButton:hover {
+    background: rgba(88, 101, 242, 0.25);
+    color: #ffffff;
 }
 
 .replyFloatingButton.active {
-    background: #22c55e;
-    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+.replyFloatingButton.active:hover {
+    background: rgba(34, 197, 94, 0.25);
+    color: #ffffff;
 }
 
+.Double {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    min-width: 90px;
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.platform_mobile .Double {
+    top: 70px;
+}
+
+/* 모드별 세련된 컬러링 (테두리 + 글자색 포인트) */
+.Double.mode_1 { /* 싱글콘: 파랑 */
+    background-color: rgba(88, 101, 242, 0.15);
+    border: 1px solid rgba(88, 101, 242, 0.4);
+    color: #8fa0ff;
+}
+.Double.mode_2 { /* 더블콘: 노랑 */
+    background-color: rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    color: #fde047;
+}
+.Double.mode_3 { /* 트리플콘: 빨강 */
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+/* =========================================
+   5. 답장 시트 (Bottom Sheet)
+========================================= */
 .replySheetBackdrop {
     position: fixed;
     inset: 0;
     z-index: 1002;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.6); /* 더 어둡게 */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 }
 
 .replySheet {
@@ -179,134 +300,102 @@
     right: 0;
     bottom: 0;
     z-index: 1003;
-
     max-height: 55vh;
     overflow-y: auto;
-
-    padding: 12px;
-    border-radius: 18px 18px 0 0;
-
-    background: white;
-    color: black;
-
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+    padding: 16px;
+    border-radius: 20px 20px 0 0;
+    background: #1e1e24; /* 다크 모드 시트 배경 */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .replySheetHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    margin-bottom: 8px;
-
-    color: black;
-    font-weight: bold;
+    margin-bottom: 12px;
+    color: #ffffff;
+    font-weight: 700;
     font-size: 16px;
+    padding: 0 4px;
 }
 
 .replySheetClose {
     border: none;
     background: transparent;
-    color: black;
-
-    font-size: 24px;
+    color: #9ca3af;
+    font-size: 26px;
     cursor: pointer;
+    transition: color 0.2s;
 }
+.replySheetClose:hover { color: #ffffff; }
 
 .replyItem {
-    padding: 10px;
-    border-radius: 10px;
-
-    color: black;
+    padding: 12px;
+    border-radius: 12px;
+    color: #d1d5db;
     cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
 }
 
 .replyItem:hover {
-    background: #eeeeee;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .replyItem.selected {
-    background: #dbeafe;
+    background: rgba(88, 101, 242, 0.15);
+    border-color: rgba(88, 101, 242, 0.3);
 }
 
 .replyAuthor {
-    color: black;
+    color: #ffffff;
     font-size: 13px;
-    font-weight: bold;
+    font-weight: 700;
+    margin-bottom: 2px;
 }
 
 .replyText {
-    color: #444;
+    color: #9ca3af;
     font-size: 13px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.Double {
+/* =========================================
+   6. 전송 중 로딩 오버레이
+========================================= */
+#sending {
     position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 1001;
-
-    min-width: 90px;
-    height: 36px;
-    padding: 0 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 999px;
-    border: 1px solid #5865f2;
-    background-color: #5865f2;
-    color: white;
-
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* 밝은 흰색 오버레이 -> 다크 오버레이 */
+    backdrop-filter: blur(2px);
+    z-index: 9999;
 }
-
-.platform_mobile .Double {
-    top: 66px;
-}
-
-.Double.mode_1 {
-    background-color: #5865f2; /* 싱글콘: 파란색 */
-    color: white;
-}
-
-.Double.mode_2 {
-    background-color: #facc15; /* 더블콘: 노란색 */
-    color: black;
-    border-color: #facc15;
-}
-
-.Double.mode_3 {
-    background-color: #ef4444; /* 트리플콘: 빨간색 */
-    color: white;
-    border-color: #ef4444;
-}
-
-/* 로딩 아이콘 */
 
 .loader {
     width: 1em;
     height: 1em;
-    font-size: 150px;
+    font-size: 120px;
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 10000;
 }
+
 @media (max-width: 225px), (max-height: 225px) {
-    .loader {
-        font-size: 75px;
-    }
+    .loader { font-size: 60px; }
 }
+
 .loader:before, .loader:after {
     content: "";
     top: 0;
@@ -319,31 +408,34 @@
     border-color: transparent;
     box-sizing: border-box;
     border-radius: 1em;
-    animation: spin 1s infinite;
+    animation: spin 1.2s infinite ease-in-out;
 }
-.loader:after {
-    left: 0;
-    border-left-color: black;
-}
-.loader:before {
-    right: 0;
-    border-right-color: black;
-    animation-delay: -0.25s;
-}
-@keyframes spin {
-    from {
-        transform: rotate(360deg);
+
+@media screen and (max-width: 400px){
+    .dcconImageItem{
+        width: 100px !important;
+        height: 100px !important;
+    }
+    .dcconImageItem .dccon-wrapper{
+        width: 80px !important;
+        height: 80px !important;
+    }
+    .image_list{
+        gap: 5px;
     }
 }
 
-#sending{
-    position: fixed;
-    top: 0;
+
+.loader:after {
     left: 0;
-    bottom: 0;
+    border-left-color: #5865f2; /* 검은색 -> 디스코드 블루 포인트 */
+}
+.loader:before {
     right: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.3);
-    z-index: 9999;
+    border-right-color: #a855f7; /* 검은색 -> 퍼플 포인트 */
+    animation-delay: -0.25s;
+}
+
+@keyframes spin {
+    from { transform: rotate(360deg); }
 }

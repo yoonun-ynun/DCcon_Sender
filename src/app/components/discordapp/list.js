@@ -28,7 +28,7 @@ import Sending from '@/app/components/discordapp/sending.js';
  * @typedef {Object} Getters
  * @property {() => Promise<{ok: boolean, guilds: {id: string, name: string}[], reason: string}>} getGuilds
  * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
- * @property {(id:string, channel:string, double: number, reply: string) => Promise<{ok: boolean, reason: string}>} send
+ * @property {(id:string, channel:string, double: number, reply: string, idx: string) => Promise<{ok: boolean, reason: string}>} send
  * @property {(channel: string) => Promise<{ok: boolean, data:recentMessage[], reason: string }>} recents
  */
 
@@ -117,6 +117,7 @@ export default function List({ data, getters }) {
                 channel.id,
                 count,
                 replyTarget?.message_id,
+                data.idx,
             );
             if (!result.ok) setMsg('전송 중 오류가 발생하였습니다.' + ` reason: ${result.reason}`);
         } catch (e) {

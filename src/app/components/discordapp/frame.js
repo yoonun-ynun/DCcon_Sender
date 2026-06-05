@@ -91,17 +91,47 @@ export default function Frame({ CLIENT_ID, tops }) {
 
             platform.current = discordSdk.platform;
 
+            let code = '';
             //Discord에 Authorization_code 요청
-            const res = await discordSdk.commands.authorize({
-                client_id: CLIENT_ID,
-                response_type: 'code',
-                state: crypto.randomUUID(),
-                scope: ['identify', 'guilds', 'guilds.members.read'],
-            });
-            const code = res.code;
-            if (!code) {
-                discordSdk.close(RPCCloseCodes.CLOSE_NORMAL, '인증을 할 수 없습니다.');
-                return;
+            try {
+                const res = await discordSdk.commands.authorize({
+                    client_id: CLIENT_ID,
+                    response_type: 'code',
+                    state: crypto.randomUUID(),
+                    prompt: 'none',
+                    scope: ['identify', 'guilds', 'guilds.members.read'],
+                });
+                code = res.code;
+                if (!code) {
+                    const reRes = await discordSdk.commands.authorize({
+                        client_id: CLIENT_ID,
+                        response_type: 'code',
+                        state: crypto.randomUUID(),
+                        scope: ['identify', 'guilds', 'guilds.members.read'],
+                    });
+                    code = reRes.code;
+                    if (!code) {
+                        discordSdk.close(RPCCloseCodes.CLOSE_ABNORMAL, '인증을 할 수 없습니다.');
+                        return;
+                    }
+                }
+            } catch (e) {
+                try {
+                    const reRes = await discordSdk.commands.authorize({
+                        client_id: CLIENT_ID,
+                        response_type: 'code',
+                        state: crypto.randomUUID(),
+                        scope: ['identify', 'guilds', 'guilds.members.read'],
+                    });
+                    code = reRes.code;
+                } catch (e) {
+                    discordSdk.close(RPCCloseCodes.CLOSE_ABNORMAL, '인증을 할 수 없습니다.');
+                    return;
+                }
+                if (!code) {
+                    discordSdk.close(RPCCloseCodes.CLOSE_NORMAL, '인증을 할 수 없습니다.');
+                    return;
+                }
             }
 
             //브라우저가 third-party-cookie를 허용하는지 확인
@@ -161,9 +191,9 @@ export default function Frame({ CLIENT_ID, tops }) {
                         });
                         return await guilds.json();
                     },
-                    send: async (item, ch, d, r) => {
+                    send: async (item, ch, d, r, index) => {
                         const res = await fetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}&i=${index}`,
                         );
                         return await res.json();
                     },
@@ -191,9 +221,9 @@ export default function Frame({ CLIENT_ID, tops }) {
                             headers: { 'Content-Type': 'application/json' },
                         });
                     },
-                    send: async (item, ch, d, r) => {
+                    send: async (item, ch, d, r, index) => {
                         return await authedFetch(
-                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}`,
+                            `/api/embed/send?u=${item}&c=${cookieUsable}&ch=${ch}&d=${d}&r=${r}&i=${index}`,
                         );
                     },
                     recents: async (ch) => {

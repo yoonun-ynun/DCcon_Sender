@@ -3,17 +3,21 @@ import { auth } from '@/auth.js';
 import { headers } from 'next/headers';
 import { decode } from 'next-auth/jwt';
 import { getDoubleImage } from '@/app/api/embed/send/getDoubleImage.js';
+import { connectDB } from '@/lib/mongodb';
+import Usage from '@/models/Usage.js';
 
 const base_url = 'https://discord.com/api/v10';
 
 export async function GET(req) {
+    await connectDB();
     const { searchParams } = new URL(req.url);
     const url = searchParams.get('u');
     const cookieUsable = searchParams.get('c');
     const channel = searchParams.get('ch');
+    const idx = searchParams.get('i');
     let double = Number(searchParams.get('d'));
     let reply = searchParams.get('r');
-    if (!url || !cookieUsable || !channel || url === '' || channel === '') {
+    if (!url || !cookieUsable || !channel || url === '' || channel === '' || idx === '') {
         return NextResponse.json({ ok: false, reason: 'invalid request' }, { status: 400 });
     }
     if (!reply || reply === 'undefined' || reply === 'null') {
@@ -52,6 +56,18 @@ export async function GET(req) {
             image: payload.image,
         };
     }
+
+    await Usage.updateOne(
+        { user_id: session.discordId },
+        {
+            $inc: { count: 1 },
+            $setOnInsert: {
+                user_id: session.discordId,
+                user_name: session.name,
+            },
+        },
+        { upsert: true },
+    );
 
     let image;
     let ext;
@@ -92,6 +108,7 @@ export async function GET(req) {
                 image: {
                     url: `attachment://main_image.${ext}`,
                 },
+                url: `https://yoonun.com/components/info?idx=${idx}`,
             },
         ],
         message_reference: reply ? replyObject : undefined,

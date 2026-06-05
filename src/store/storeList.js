@@ -88,6 +88,7 @@ function fetchAdd(idx) {
         })
         .then((res) => {
             if (!res.success) {
+                alert(res.message);
                 throw new Error('Server Error');
             }
         })

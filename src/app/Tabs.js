@@ -18,91 +18,67 @@ export default function Tabs({ initialData }) {
         setUrl(`/components/info?idx=${el.getAttribute('dccon-idx')}`);
     }
 
-    function handleClick(idx) {
-        setActive(idx);
-    }
-
     return (
         <div>
             <Header />
             <Bar />
-            <div id={'body'}>
-                <div id={'selector'} data-active={active} className={'tabs'}>
+            <div id="body">
+                {/* 탭 셀렉터 */}
+                <div id="selector" data-active={active} className="tabs">
                     <span
-                        id={'monthly'}
-                        data-idx={0}
                         className={`hot ${active === 0 ? 'active' : ''}`}
-                        onClick={() => handleClick(0)}
+                        onClick={() => setActive(0)}
                     >
-                        일간 인기 디시콘
+                        일간 인기
                     </span>
                     <span
-                        id={'weekly'}
-                        data-idx={1}
                         className={`hot ${active === 1 ? 'active' : ''}`}
-                        onClick={() => handleClick(1)}
+                        onClick={() => setActive(1)}
                     >
-                        주간 인기 디시콘
+                        주간 인기
                     </span>
                     <span
-                        id={'monthly'}
-                        data-idx={2}
                         className={`hot ${active === 2 ? 'active' : ''}`}
-                        onClick={() => handleClick(2)}
+                        onClick={() => setActive(2)}
                     >
-                        월간 인기 디시콘
+                        월간 인기
                     </span>
-                    <span className={'pill'} aria-hidden="true"></span>
+                    <span className="pill" aria-hidden="true"></span>
                 </div>
-                <div className={'list_wrapper'}>
-                    <div className={'list'}>
+
+                {/* 리스트 영역 */}
+                <div className="list_wrapper">
+                    <div className="dccon-grid">
                         {initialData.map((item, i) => {
+                            const currentData =
+                                active === 0 ? item.day : active === 1 ? item.week : item.month;
+
                             return (
-                                <span
-                                    id={`hot_${i}`}
-                                    className={'hot_item'}
-                                    dccon-idx={
-                                        active === 0
-                                            ? item.day.package_idx
-                                            : active === 1
-                                              ? item.week.package_idx
-                                              : item.month.package_idx
-                                    }
+                                <div
+                                    className="premium-card"
+                                    dccon-idx={currentData.package_idx}
                                     onClick={iframe_clicker}
                                     key={i}
                                 >
-                                    <div className={'img-bg hot-image-frame'}>
+                                    <div className="img-bg">
                                         <Image
                                             wrapperClassName="hot-dccon-image"
-                                            src={
-                                                active === 0
-                                                    ? `/api/img?u=${encodeURIComponent(item.day.img)}`
-                                                    : active === 1
-                                                      ? `/api/img?u=${encodeURIComponent(item.week.img)}`
-                                                      : `/api/img?u=${encodeURIComponent(item.month.img)}`
-                                            }
-                                            alt={'DCcon image'}
-                                            className={'image'}
+                                            src={`/api/img?u=${encodeURIComponent(currentData.img)}`}
+                                            alt={currentData.title}
+                                            className="image"
                                             width={180}
                                             height={180}
                                         />
                                     </div>
-                                    <div className={'title_field'}>
-                                        {active === 0
-                                            ? item.day.title
-                                            : active === 1
-                                              ? item.week.title
-                                              : item.month.title}
-                                    </div>
-                                </span>
+                                    <div className="title_field">{currentData.title}</div>
+                                </div>
                             );
                         })}
                     </div>
                 </div>
                 {url && <IframeOverlay url={url} onClose={() => setUrl(null)} />}
             </div>
-            <hr />
-            <div id={'footer'}></div>
+            <div id="footer"></div>
         </div>
     );
 }

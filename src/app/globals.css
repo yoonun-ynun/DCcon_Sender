@@ -1,501 +1,335 @@
+/* global.css */
 :root {
-  --background: #000000;
-  --foreground: #171717;
+  --background: #050507;
+  --foreground: #ffffff;
+  --primary: #5865f2;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body.force-white {
-  --background: #ffffff;
-  --foreground: #000000;
-  color-scheme: light;
-}
-
-body.force-white div {
-  color: #000;
-}
-
-html,
 body {
-  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  color: var(--foreground);
+  background-color: var(--background);
+  /* 심도 있는 그라데이션 배경 */
+  background-image:
+          radial-gradient(circle at 50% 0%, #17182b 0%, #050507 50%),
+          radial-gradient(circle at 80% 80%, #110d1a 0%, #050507 50%);
+  background-attachment: fixed;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
-#header{
+/* 커스텀 스크롤바 */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #050507; }
+::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f5a; }
+
+a { color: inherit; text-decoration: none; }
+* { box-sizing: border-box; }
+
+/* =========================================
+   Header Styles
+========================================= */
+#header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 1.5rem 2rem;
+  position: relative;
+  z-index: 50;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#title{
-  color: white;
-  text-align: left;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 2.5rem;
-  margin-left: 2%;
-  margin-top: 1%;
-  font-weight: bold;
-  font-style: italic;
-}
-
-#Discord_login{
-  width: 12rem;
-  height: 4rem;
-  background-color: rgba(0, 0, 0, 0);
-  color: #5865f2;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 2.3rem;
-  border-color: #5865f2;
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 2rem;
+#title {
+  display: flex;
+  flex-direction: column;
   cursor: pointer;
+  transition: opacity 0.2s;
+}
+#title:hover { opacity: 0.8; }
+.title-top { font-size: 0.85rem; font-weight: 700; color: #9ca3af; letter-spacing: 0.05em; margin: 0; }
+.title-bottom { font-size: 1.8rem; font-weight: 900; font-style: italic; color: white; margin: 0; line-height: 1; letter-spacing: -0.02em; }
+
+#Discord_login, #Discord_logout {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-}
-
-#Discord_login:hover{
-  background-color: #5865f2;
-  color: white;
-}
-
-#Discord_logout{
-  width: 9rem;
-  height: 3rem;
-  background-color: rgba(0, 0, 0, 0);
-  color: red;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 1.4rem;
-  font-weight: bold;
-  border-color: red;
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 2rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+#Discord_login {
+  background-color: rgba(88, 101, 242, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(88, 101, 242, 0.3);
+}
+#Discord_login:hover {
+  background-color: rgba(88, 101, 242, 0.2);
+  box-shadow: 0 0 15px rgba(88, 101, 242, 0.3);
+}
+#Discord_symbol { width: 1.2rem; height: 1.2rem; }
+
+/* =========================================
+   Search Bar Styles
+========================================= */
+#Search {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+#Search_bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  width: min(90vw, 600px);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  padding: 0.4rem 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
-#Discord_logout:hover{
-  background-color: red;
-  color: white;
+#Search_bar:focus-within {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
 }
 
-#Discord_login:hover img{
-  filter: brightness(0) invert(1);
-}
-
-#Discord_symbol{
-  width: 2rem;
-  height: 2rem;
-}
-
-.pf_menu_bt{
-  display: flex;
+.search-select {
+  background-color: transparent;
+  color: #9ca3af;
   border: none;
-  background-color: rgba(0, 0, 0, 0);
-  width: 10rem;
-  height: 3rem;
-  color: white;
-  text-align: left;
-  justify-content: space-between;
-  align-items: center;
+  outline: none;
+  font-size: 0.95rem;
+  padding-right: 0.5rem;
   cursor: pointer;
 }
+.search-select option { background-color: #1a1a24; color: white; }
 
-.pf_menu_bt:hover{
-  background-color: rgba(255, 255, 255, 0.3);
+.search-divider {
+  width: 1px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 0 0.8rem;
 }
 
-#profile_menu{
-  width: 10rem;
-  height: 6rem;
-  display: block;
+.bar {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 1rem;
+  padding: 0.5rem 0;
 }
+.bar::placeholder { color: #6b7280; }
 
-div{
-  color:white;
+.Search_bt {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s;
 }
+.Search_bt:hover { background: rgba(255, 255, 255, 0.1); }
+#Search_image { width: 1.5rem; height: 1.5rem; filter: invert(70%); transition: filter 0.2s; }
+.Search_bt:hover #Search_image { filter: invert(100%); }
 
+/* =========================================
+   Tabs Slider Styles
+========================================= */
 #selector.tabs {
   --pad: 6px;
-  --radius: 999px;
-  --dur: .25s;
-
+  --radius: 99px;
+  --dur: 0.3s;
   position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-
-  width: min(92vw, 760px);
-  margin: 1rem auto 2rem;
+  width: min(92vw, 500px);
+  margin: 0 auto 3rem;
   padding: var(--pad);
-
-  border: 2px solid white;
-  border-radius: 3rem;
-  gap: 0;
-}
-
-#selector.tabs[data-active="0"] .pill {
-  left: var(--pad);
-}
-
-#selector.tabs[data-active="1"] .pill {
-  left: calc(var(--pad) + ((100% - var(--pad) * 2) / 3));
-}
-
-#selector.tabs[data-active="2"] .pill {
-  left: calc(var(--pad) + ((100% - var(--pad) * 2) / 3) * 2);
-}
-
-
-
-#selector.tabs .hot {
-  position: relative;
-  z-index: 1;
-
-  margin: 0;
-  padding: 1rem 0.7rem;
-
-  border: 0;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius);
-  background: transparent;
-
-  font-size: 1.35rem;
-  text-align: center;
-  white-space: nowrap;
-  cursor: pointer;
-
-  transition: color var(--dur) ease;
 }
-
-
-
-#selector.tabs .hot.active {
-  color: #0b0b0b;
-}
-
 
 #selector.tabs .pill {
   position: absolute;
   z-index: 0;
-
-  top: var(--pad);
-  bottom: var(--pad);
-  left: var(--pad);
-
+  top: var(--pad); bottom: var(--pad); left: var(--pad);
   width: calc((100% - var(--pad) * 2) / 3);
-
-  background: white;
+  background: #ffffff;
   border-radius: var(--radius);
-  box-shadow: 0 2px 10px rgba(255, 255, 255, .15);
-
-  transition: left var(--dur) ease;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+  transition: left var(--dur) cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
 }
 
-#selector {
-  gap: 0;
+#selector.tabs[data-active="0"] .pill { left: var(--pad); }
+#selector.tabs[data-active="1"] .pill { left: calc(var(--pad) + ((100% - var(--pad) * 2) / 3)); }
+#selector.tabs[data-active="2"] .pill { left: calc(var(--pad) + ((100% - var(--pad) * 2) / 3) * 2); }
+
+#selector.tabs .hot {
+  position: relative; z-index: 1;
+  padding: 0.8rem 0;
+  border: 0; background: transparent;
+  font-size: 0.95rem; font-weight: 500;
+  color: #9ca3af;
+  text-align: center; cursor: pointer;
+  transition: color var(--dur) ease;
+}
+#selector.tabs .hot.active { color: #000000; font-weight: 700; }
+
+/* =========================================
+   Grid & Premium Card Styles
+========================================= */
+.list_wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem 2rem;
 }
 
-.list_wrapper{
-  display: flex;
-  justify-content: center;
-  width: 100%;
+.dccon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.5rem;
 }
 
-.list{
-  display: flex;
-  flex-wrap: wrap;      /* 줄바꿈 허용 */
-  justify-content: center;
-  align-items: center;
-  gap: 5rem;
-  width: fit-content;
-  margin-bottom: 1rem;
-}
-
-.list span{
-  display: flex;
-  justify-content: center;
-  white-space: nowrap;        /* 줄바꿈 금지 */
-  overflow: hidden;           /* 넘치는 부분 숨기기 */
-  text-overflow: "";    /* ... 처리 */
-  max-width: 200px;           /* span 최대 폭 제한 */
-  border: 2px solid white;
-  padding: 6px 12px;
-  border-radius: 1rem;
-  text-align: left;
-  width: 250px;             /* 가로 고정 */
-  height: 300px;
-}
-
-.hot_item{
-  display: flex;
-  flex-direction: column; /* 세로 방향 정렬 */
-  align-items: center;    /* 가운데 정렬 */
-  text-align: center;     /* 텍스트도 가운데 정렬 */
+.premium-card {
+  position: relative;
+  background: rgba(20, 20, 25, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.hot_item:hover{
-  background-color: #444;
+/* 호버 시 나타나는 그라데이션 테두리 효과 */
+.premium-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  pointer-events: none;
 }
 
-.image{
-  width: 180px;
-  height: 180px;
-  object-fit: contain;
-  margin-bottom: 1.5rem;
-  border-radius: 20px;
-  font-size: 0;
-  color: transparent;
+.premium-card:hover {
+  transform: translateY(-6px);
+  background: rgba(30, 30, 40, 0.8);
+  box-shadow: 0 12px 30px -10px rgba(168, 85, 247, 0.25);
 }
+.premium-card:hover::after { opacity: 1; }
 
-.hot_item .img-bg {
-  width: 180px;
-  height: 180px;
-  margin-bottom: 1.5rem;
-  border-radius: 20px;
-  background: transparent;
+.img-bg {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
   overflow: hidden;
-}
-
-.hot_item .img-bg {
-  width: 180px !important;
-  height: 180px !important;
-  margin: 0 !important;
-  display: block !important;
-}
-
-.hot_item .img-bg .dccon-bg {
-  background: transparent;
-}
-
-.hot_item .img-bg .dccon-real {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 20px;
-}
-
-.title_field{
-
-  padding: 0.9rem 1.4rem;
-  border-radius: 1rem;
-  font-size: 1.2rem;
-}
-
-#Search{
+  margin-bottom: 0.8rem;
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 3rem;
-  margin-bottom: 5rem;
-}
-#Search_bar{
-  display: flex;
-  align-items: center;
-  border: 2px solid white;
-  border-radius: 2rem;
-  height: 4rem;
-  padding: 1rem;
+  position: relative;
 }
 
-.Search_bt{
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 0;
-  border: 0;
-  width: 4rem;
-  height: 4rem;
+.image, .hot-dccon-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
+.premium-card:hover .image { transform: scale(1.05); }
 
-.Search_bt img{
-  filter: invert(100%);
-}
-
-.bar{
-  height: 4rem;
-  width: 45rem;
-  font-size: 1.5rem;
-  border-radius: 0;
-  background-color: rgba(0, 0, 0, 0);
-  border: none;
-  outline: none;
-  color: white;
-  padding-left: 0.5rem;
-}
-
-#Search_image{
-  width: 3rem;
-  height: 3rem;
-  color: white;
-  cursor: pointer;
-}
-
-.dccon_listing{
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0.2rem;
-}
-
-.dccon_listing img{
-  width: 50px;
-  height: 50px;
-}
-
-.delete_dccon{
-  background-color: rgba(10, 10, 10, 0);
-  color: white;
-  font-size: 1.2rem;
-  border: none;
-  align-content: center;
-  cursor: pointer;
-}
-
-.profile_list{
-  margin: 1rem 0;
-}
-
-.dccon_listing_title{
-  width: 10rem;
+.title_field {
   text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s;
+}
+.premium-card:hover .title_field { color: #ffffff; }
+
+/* =========================================
+   Responsive
+========================================= */
+@media screen and (max-width: 780px) {
+  #header { padding: 1rem; }
+  .title-top { font-size: 0.7rem; }
+  .title-bottom { font-size: 1.4rem; }
+  #Discord_login { font-size: 0.8rem; padding: 0.5rem 1rem; }
+
+  #Search_bar { width: 90vw; }
+  #selector.tabs { width: 92vw; --pad: 4px; }
+  #selector.tabs .hot { font-size: 0.8rem; padding: 0.6rem 0; }
+
+  .list_wrapper { padding: 0 1rem 2rem 1rem; }
+  .title_field { font-size: 0.85rem; }
+
+  /* 1. 모바일 그리드 2열 고정 및 간격 조정 (그림을 최대한 크고 시원하게) */
+  .dccon-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  /* 2. 카드 내부 여백(Padding)을 줄여서 이미지가 차지하는 공간 확대 */
+  .premium-card {
+    padding: 8px !important;
+  }
+
+  /* 3. 이미지 컨테이너 하단 여백 축소 */
+  .img-bg {
+    margin-bottom: 0.5rem !important;
+    border-radius: 10px !important;
+  }
+
+  /* 4. 잘려 보이던 거대한 글자 크기를 모바일에 맞게 축소 */
+  .title_field {
+    font-size: 0.95rem !important;
+    padding: 0.2rem 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
-.tabs[data-active="0"] .pill { left: var(--pad); }
-.tabs[data-active="1"] .pill { left: calc(48% + var(--pad)); }
-
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.img-bg{
-  width: 180px;
-  height: 180px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.6);
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
-@media screen and (max-width: 780px){
-  #title{
-    font-size: 2rem;
-  }
-  .hot {
-    font-size: 0.75rem;
-    padding: 0.75rem 0.2rem;
-  }
-  #selector {
-    width: min(94vw, 420px);
-    padding: 4px;
-  }
-  #selector.tabs {
-    --pad: 4px;
-    width: 94vw;
-  }
-
-
-  #selector.tabs .hot {
-    font-size: 0.75rem;
-    padding: 0.75rem 0.2rem;
-  }
-
-  .list span{
-    justify-content: center;
-    width: 160px;
-    height: 240px;
-  }
-
-  .img-bg{
-    width: 145px;
-    height: 145px;
-  }
-
-  .hot_item .img-bg {
-    width: 145px;
-    height: 145px;
-    margin-bottom: 1rem;
-  }
-
-  .hot_item .img-bg {
-    width: 145px !important;
-    height: 145px !important;
-  }
-
-  .title_field{
-    padding: 0.2rem 0.4rem;
-    font-size: 1rem;
-  }
-
-  .list{
-    gap: 0.5rem;
-  }
-  .bar{
-    width: 17rem;
-    height: 4rem;
-  }
-  #Search_bar{
-    height: 4rem;
-  }
-
-  .Search_bt{
-    background-color: rgba(0, 0, 0, 0);
-    border-radius: 0;
-    border: 0;
-    width: 4rem;
-    height: 4rem;
-  }
-
-  #Search_image{
-    width: 3rem;
-    height: 3rem;
-  }
-
-  #Discord_login{
-    width: 9rem;
-    height: 3rem;
-    font-size: 1rem;
-  }
-
-  #profile_menu{
-    width: 100%;
-  }
-  .pf_menu_bt{
-    width: 100%;
-    text-align: center;
-  }
-
-  .dccon-wrapper.hot-dccon-image{
-    width: 145px !important;
-    height: 145px !important;
-  }
-
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
 }
