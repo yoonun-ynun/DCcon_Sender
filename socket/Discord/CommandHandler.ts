@@ -104,14 +104,18 @@ async function handleInteraction(message: event) {
     const interaction_token = interaction.token;
     const command_name = (interaction.data as applicationCommandDataStructure).name;
     await createInteractionResponse(interaction_id, interaction_token, {
-        type: 5,
+        type: command_name === 'activity' ? 12 : 5,
         data: {
             flags:
-                command_name === '개추/비추 반응 추가' || command_name === 'activity'
+                command_name === '개추/비추 반응 추가' ||
+                command_name === 'activity' ||
+                command_name === '디시콘 가져오기'
                     ? 1 << 6
                     : undefined,
         },
     });
+
+    if (command_name === 'activity') return;
 
     const user_id = interaction.user?.id ?? interaction.member?.user?.id;
     const user_name =
@@ -159,6 +163,9 @@ async function handleInteraction(message: event) {
         ? interaction.guild_id
         : (interaction.guild?.['id'] as undefined | string);
     const message_id = (interaction.data as applicationCommandDataStructure).target_id;
+    const embeds = (interaction.data as applicationCommandDataStructure).resolved?.messages?.[
+        message_id
+    ].embeds;
 
     await handle({
         name: command_name,
@@ -183,6 +190,7 @@ async function handleInteraction(message: event) {
             count: count,
             decount: decount,
             auto: auto,
+            embeds: embeds,
         },
     });
 }
@@ -312,6 +320,16 @@ function createCommand() {
         name: 'activity',
         description: '봇을 실행시키기 위한 액티비티 링크를 반환합니다.',
         type: 1,
+    }).then((res) => {
+        if (res?.ok !== true) {
+            console.log(res?.message);
+            return;
+        }
+        console.log('명령어 설정 환료');
+    });
+    createGlobalCommand({
+        name: '디시콘 가져오기',
+        type: 3,
     }).then((res) => {
         if (res?.ok !== true) {
             console.log(res?.message);

@@ -3,6 +3,7 @@ import { createChannel, searchChannel } from '../../DataBase/query.js';
 import { CommandError } from '../Errors/CommandError.js';
 import { createGuildChannel, editInteractionResponse, getGuildChannels } from '../AJAX.js';
 import type { channel } from '../interfaces/primaryType.js';
+import { removeCache } from '../MessageReaction/handler.js';
 
 export default async function initializeRecommend(payload: CommandPayload) {
     if (!payload.guild_id) {
@@ -61,6 +62,7 @@ export default async function initializeRecommend(payload: CommandPayload) {
                 payload.select.decount,
                 payload.select.auto,
             );
+            removeCache(payload.guild_id);
             await editInteractionResponse(
                 payload.application.application_id,
                 payload.interaction.interaction_token,

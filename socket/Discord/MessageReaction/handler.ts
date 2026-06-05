@@ -131,6 +131,10 @@ async function verifyCount(isRecommend: boolean, message: RecommendText) {
     }
 }
 
+export function removeCache(guild_id: string) {
+    cacheChannel.delete(guild_id);
+}
+
 interface channels {
     channel_ids: string[];
     count: number;

@@ -1,4 +1,4 @@
-import type { guildMember, user } from './primaryType.js';
+import type { guildMember, message, user } from './primaryType.js';
 import type { Command_List } from './Payloads.js';
 
 export interface interaction {
@@ -17,7 +17,7 @@ export interface interaction {
     user?: user;
     token: string;
     version: number;
-    message?: Record<string, unknown>;
+    message?: Record<string, message>;
     app_permissions: string;
     locale?: string;
     guild_locale?: string;
@@ -70,7 +70,7 @@ interface resolvedData {
     members?: Record<string, unknown>;
     roles?: Record<string, unknown>;
     channels?: Record<string, unknown>;
-    messages?: Record<string, unknown>;
+    messages?: Record<string, message>;
     attachments?: Record<string, unknown>;
 }
 

@@ -49,6 +49,7 @@ export type Command_List =
     | 'select'
     | 'profile'
     | '개추/비추 반응 추가'
+    | '디시콘 가져오기'
     | 'activity'
     | 'init';
 
@@ -75,6 +76,7 @@ export interface CommandPayload {
         count?: number;
         decount?: number;
         auto?: boolean;
+        embeds?: embed[];
     };
 }
 
