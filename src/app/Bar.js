@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function Bar({ getting_word }) {
+export default function Bar({ getting_word, getting_mode }) {
     const [word, setWord] = useState(getting_word || '');
-    const [search, setSearch] = useState('title');
+    const [search, setSearch] = useState(getting_mode || 'title');
     const router = useRouter();
     const Blacklist = ['디시', '디시콘', '시콘'];
 
