@@ -1,5 +1,5 @@
 /**
- * @name DCconSelector
+ * @name DCconSender
  * @author yoonun
  * @description yoonun.com을 연동하여 디시콘을 선택하고 입력합니다.
  * @version 1.0.0
