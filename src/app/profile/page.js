@@ -7,6 +7,7 @@ import IframeOverlay from '@/app/components/IframeOveray';
 import { useDcconSync } from '@/store/queryList.js';
 // 생성한 CSS 모듈 import
 import styles from './page.module.css';
+import Image from 'next/image';
 
 export default function Page() {
     const { reset } = useDcconSync();
@@ -19,7 +20,7 @@ export default function Page() {
             reset();
             router.replace('/');
         }
-    }, [status, router]);
+    }, [status, router, reset]);
 
     if (status !== 'authenticated') return null;
 
@@ -78,7 +79,7 @@ export default function Page() {
 function Profile({ discordId, img, name }) {
     return (
         <div className={styles.profileWrapper}>
-            <img className={styles.profileImg} src={img} alt={`${name}'s profile image`} />
+            <Image className={styles.profileImg} src={img} alt={`${name}'s profile image`} />
             <div className={styles.profileInfo}>
                 <h2>{name}</h2>
                 <p>ID: {discordId}</p>
@@ -122,7 +123,7 @@ function ListUp() {
     return (
         <div>
             <div className={styles.listHeader}>
-                <h3>내 디시콘 목록</h3>
+                <h3>내 디시콘 목록 {List !== null && List.length}/25</h3>
                 <button
                     className={styles.refreshBtn}
                     onClick={() => !isFetching && refetch()}

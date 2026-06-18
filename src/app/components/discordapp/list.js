@@ -36,10 +36,11 @@ import Sending from '@/app/components/discordapp/sending.js';
  *
  * @param {DcconList} data
  * @param {Getters} getters
+ * @param {{id: string, name: string} | undefined} channelId
  * @returns {React.JSX.Element}
  * @constructor
  */
-export default function List({ data, getters }) {
+export default function List({ data, getters, channelId }) {
     const [msg, setMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [double, setDouble] = useState(1);
@@ -47,7 +48,7 @@ export default function List({ data, getters }) {
     const [replyOpen, setReplyOpen] = useState(false);
     const [replyTarget, setReplyTarget] = useState(null);
     const [replyMessages, setReplyMessages] = useState([]);
-    const channel = storeChannel((s) => s.channel);
+    const channel = channelId ?? storeChannel((s) => s.channel);
 
     useEffect(() => {
         if (!channel?.id || !getters?.recents) return;

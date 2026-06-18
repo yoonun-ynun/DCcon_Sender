@@ -81,7 +81,8 @@ function fetchAdd(idx) {
         body: JSON.stringify({ idx: idx }),
     })
         .then((res) => {
-            if (!res.ok) {
+            if (res.status === 404 || res.status === 405) {
+                alert('Http Error');
                 throw new Error('Http Error');
             }
             return res.json();

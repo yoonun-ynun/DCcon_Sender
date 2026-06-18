@@ -73,7 +73,6 @@ export default function IframeOverlay({ url, onClose }) {
                         color: 'rgba(0,0,0,.85)',
                         cursor: 'pointer',
                         fontSize: 18,
-                        lineHeight: '36px',
                         textAlign: 'center',
                     }}
                 >

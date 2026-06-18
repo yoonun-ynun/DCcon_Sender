@@ -36,10 +36,11 @@ import List from '@/app/components/discordapp/list.js';
  * @param { string } discordId
  * @param {Getters} getters
  * @param { {day: DCconInfo[], week: DCconInfo[], month: DCconInfo[]} } tops
+ * @param {{id: string, name: string} | undefined} channelId
  * @returns {React.JSX.Element}
  * @constructor
  */
-export default function Selector({ discordId, getters, tops }) {
+export default function Selector({ discordId, getters, tops, channelId }) {
     const [msg, setMsg] = useState('');
     const [listInfo, setListInfo] = useState(
         /** @type {{key: string, value: DcconList, empty?: boolean}[]} */ [],
@@ -123,7 +124,7 @@ export default function Selector({ discordId, getters, tops }) {
 
     return (
         <div>
-            <List data={listInfo[selected]?.value ?? {}} getters={getters} />
+            <List data={listInfo[selected]?.value ?? {}} getters={getters} channelId={channelId} />
             <div className={'selectList'}>
                 <div className={'list'} id={'DCconList'}>
                     {listInfo.map((value, key) => {
