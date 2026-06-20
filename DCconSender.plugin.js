@@ -1,8 +1,8 @@
 /**
- * @name DCconSender
+ * @name DCconSelector
  * @author yoonun
  * @description yoonun.com을 연동하여 디시콘을 선택하고 입력합니다.
- * @version 1.0.0
+ * @version 1.0.2
  */
 
 module.exports = class DCconSelector {
@@ -11,51 +11,86 @@ module.exports = class DCconSelector {
         this.button = null;
         this.overlay = null;
         this.iframeWindow = null;
+        this.positionTracker = null;
 
         this.handleMessage = this.handleMessage.bind(this);
         this.handleKeydown = this.handleKeydown.bind(this);
+        this.updatePosition = this.updatePosition.bind(this);
     }
 
     start() {
         this.createButton();
         window.addEventListener('message', this.handleMessage);
+        this.positionTracker = setInterval(this.updatePosition, 500);
     }
 
     stop() {
+        if (this.positionTracker) clearInterval(this.positionTracker);
         this.removeButton();
         this.closeIframe();
         window.removeEventListener('message', this.handleMessage);
     }
 
     createButton() {
+        if (document.getElementById('dccon-select-btn')) return;
+
         this.button = document.createElement('button');
+        this.button.id = 'dccon-select-btn';
         this.button.textContent = 'DCcon Select';
 
         Object.assign(this.button.style, {
             position: 'fixed',
-            right: '20px',
-            bottom: '20px',
             zIndex: '2147483647',
-            padding: '8px 14px',
+            padding: '4px 12px',
             cursor: 'pointer',
             backgroundColor: '#5865F2',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '8px',
             fontWeight: 'bold',
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.15)',
+            fontSize: '14px',
+            transition: 'background-color 0.2s',
+            opacity: '0',
+            pointerEvents: 'none',
         });
 
+        this.button.onmouseover = () => {
+            this.button.style.backgroundColor = '#4752C4';
+        };
+        this.button.onmouseout = () => {
+            this.button.style.backgroundColor = '#5865F2';
+        };
         this.button.onclick = () => this.openIframe();
 
         document.body.appendChild(this.button);
     }
 
-    removeButton() {
-        if (this.button) {
-            this.button.remove();
-            this.button = null;
+    updatePosition() {
+        if (!this.button) return;
+
+        const form = document.querySelector('form');
+        if (form) {
+            const rect = form.getBoundingClientRect();
+
+            const rightPos = window.innerWidth - rect.right + 16;
+            const bottomPos = window.innerHeight - rect.top + 8;
+
+            this.button.style.right = `${rightPos}px`;
+            this.button.style.bottom = `${bottomPos}px`;
+
+            this.button.style.opacity = '1';
+            this.button.style.pointerEvents = 'auto';
+        } else {
+            this.button.style.opacity = '0';
+            this.button.style.pointerEvents = 'none';
         }
+    }
+
+    removeButton() {
+        const existingBtn = document.getElementById('dccon-select-btn');
+        if (existingBtn) existingBtn.remove();
+        this.button = null;
     }
 
     openIframe() {
@@ -77,16 +112,25 @@ module.exports = class DCconSelector {
         iframe.title = 'Floating iframe';
         iframe.allowTransparency = true;
 
+        let bottomPos = '80px';
+        let rightPos = '20px';
+
+        if (this.button) {
+            const rect = this.button.getBoundingClientRect();
+            bottomPos = `${window.innerHeight - rect.bottom}px`;
+            rightPos = `${window.innerWidth - rect.right}px`;
+        }
+
         Object.assign(iframe.style, {
             position: 'absolute',
-            right: '20px',
-            bottom: '70px',
+            right: rightPos,
+            bottom: bottomPos,
             width: 'min(480px, calc(100vw - 40px))',
             height: 'min(520px, calc(100vh - 40px))',
             border: 'none',
             borderRadius: '12px',
             background: 'transparent',
-            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.35)',
+            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.4)',
             pointerEvents: 'auto',
         });
 
@@ -162,7 +206,6 @@ module.exports = class DCconSelector {
                 } else if (typeof BdApi.showToast === 'function') {
                     BdApi.showToast('현재 채팅방 정보를 읽을 수 없습니다.', { type: 'error' });
                 }
-
                 return;
             }
 
