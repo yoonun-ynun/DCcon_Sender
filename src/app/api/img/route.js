@@ -1,4 +1,5 @@
 import { getCachedDcconImage } from '@/lib/dcconImageCache';
+import { after } from 'next/server';
 
 export const runtime = 'nodejs';
 
@@ -9,6 +10,10 @@ export async function GET(req) {
 
     try {
         const image = await getCachedDcconImage(url);
+
+        if (image.cacheWrite) {
+            after(() => image.cacheWrite);
+        }
 
         return new Response(image.data, {
             headers: {

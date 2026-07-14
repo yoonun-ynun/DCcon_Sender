@@ -3,10 +3,33 @@ import { useEffect, useRef, useState } from 'react';
 import NextImage from 'next/image';
 import './iframe.css';
 
+function getCacheableImageSrc(src) {
+    if (typeof src !== 'string') return src;
+
+    try {
+        const proxyUrl = new URL(src, 'https://dccon.local');
+        if (proxyUrl.pathname !== '/api/img') return src;
+
+        const upstreamValue = proxyUrl.searchParams.get('u');
+        if (!upstreamValue) return src;
+
+        const upstreamUrl = new URL(
+            upstreamValue.startsWith('//') ? `https:${upstreamValue}` : upstreamValue,
+        );
+        const cacheKey = upstreamUrl.searchParams.get('no');
+        if (!cacheKey || !/^[a-zA-Z0-9_-]+$/.test(cacheKey)) return src;
+
+        return `/api/img/${cacheKey}.gif?u=${encodeURIComponent(upstreamValue)}`;
+    } catch {
+        return src;
+    }
+}
+
 export default function Image({ src, alt, wrapperClassName = '', width, height }) {
     const [loadedSrc, setLoadedSrc] = useState(null);
     const loaded = loadedSrc === src;
     const imgRef = useRef(null);
+    const imageSrc = getCacheableImageSrc(src);
 
     useEffect(() => {
         const img = imgRef.current;
@@ -44,7 +67,7 @@ export default function Image({ src, alt, wrapperClassName = '', width, height }
             <div className="dccon-bg" style={{ opacity: loaded ? 0 : 1 }} />
             <NextImage
                 ref={imgRef}
-                src={src}
+                src={imageSrc}
                 alt={alt}
                 className="dccon-real"
                 style={{ opacity: loaded ? 1 : 0 }}

@@ -6,9 +6,9 @@ const CACHE_DURATION_MS = DCCON_IMAGE_CACHE_TTL_SECONDS * 1000;
 const MAX_CACHEABLE_BYTES = 14 * 1024 * 1024;
 const MAX_MEMORY_ITEM_BYTES = 4 * 1024 * 1024;
 const MAX_MEMORY_PRELOAD_BYTES = 1024 * 1024;
-const MEMORY_PRELOAD_COUNT = 64;
+const MEMORY_PRELOAD_COUNT = 32;
 const MEMORY_CACHE_LIMIT_BYTES = 64 * 1024 * 1024;
-const WARM_CONCURRENCY = 6;
+const WARM_CONCURRENCY = 12;
 
 const inFlightFetches = globalThis.dcconImageFetches ?? new Map();
 globalThis.dcconImageFetches = inFlightFetches;
@@ -137,31 +137,30 @@ async function fetchAndCacheImage(url, expiresAt, shouldStore = true) {
         const data = Buffer.from(await upstream.arrayBuffer());
         const contentType = detectContentType(data);
         let cacheStatus = 'bypass';
+        let cacheWrite = null;
 
         setMemoryCachedImage(url, data, contentType, expiresAt);
 
         if (shouldStore && data.byteLength <= MAX_CACHEABLE_BYTES) {
-            try {
-                await DCconImageCache.findOneAndUpdate(
-                    { url },
-                    {
-                        $set: {
-                            data,
-                            contentType,
-                            byteLength: data.byteLength,
-                            fetchedAt: new Date(),
-                            expiresAt,
-                        },
+            cacheStatus = 'miss';
+            cacheWrite = DCconImageCache.findOneAndUpdate(
+                { url },
+                {
+                    $set: {
+                        data,
+                        contentType,
+                        byteLength: data.byteLength,
+                        fetchedAt: new Date(),
+                        expiresAt,
                     },
-                    { upsert: true, new: true, setDefaultsOnInsert: true },
-                );
-                cacheStatus = 'miss';
-            } catch (error) {
+                },
+                { upsert: true, new: true, setDefaultsOnInsert: true },
+            ).catch((error) => {
                 console.error(`Failed to store DCcon image cache for ${url}`, error);
-            }
+            });
         }
 
-        return { data, contentType, cacheStatus };
+        return { data, contentType, cacheStatus, cacheWrite };
     })();
 
     inFlightFetches.set(url, request);
@@ -228,6 +227,23 @@ function collectImageUrls(info) {
     return [...urls];
 }
 
+async function preloadImagesFromDatabase(urls, now, expiresAt) {
+    if (urls.length === 0) return;
+
+    const images = await DCconImageCache.find(
+        {
+            url: { $in: urls },
+            expiresAt: { $gt: now },
+            byteLength: { $lte: MAX_MEMORY_PRELOAD_BYTES },
+        },
+        { _id: 0, url: 1, data: 1, contentType: 1 },
+    );
+
+    for (const image of images) {
+        setMemoryCachedImage(image.url, Buffer.from(image.data), image.contentType, expiresAt);
+    }
+}
+
 export async function warmDcconImages(info) {
     const urls = collectImageUrls(info);
     if (urls.length === 0) return { total: 0, cached: 0, warmed: 0, failed: 0 };
@@ -236,6 +252,11 @@ export async function warmDcconImages(info) {
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + CACHE_DURATION_MS);
+    const preloadUrls = urls
+        .slice(0, MEMORY_PRELOAD_COUNT)
+        .filter((url) => !getMemoryCachedImage(url));
+    await preloadImagesFromDatabase(preloadUrls, now, expiresAt);
+
     const cachedUrls = await DCconImageCache.distinct('url', {
         url: { $in: urls },
         expiresAt: { $gt: now },
@@ -245,19 +266,19 @@ export async function warmDcconImages(info) {
     if (cachedUrls.length > 0) {
         await DCconImageCache.updateMany({ url: { $in: cachedUrls } }, { $set: { expiresAt } });
         extendMemoryCache(cachedUrls, expiresAt);
+    }
 
-        const preloadUrls = urls.slice(0, MEMORY_PRELOAD_COUNT);
-        const preloadImages = await DCconImageCache.find(
-            {
-                url: { $in: preloadUrls },
-                expiresAt: { $gt: now },
-                byteLength: { $lte: MAX_MEMORY_PRELOAD_BYTES },
-            },
-            { _id: 0, url: 1, data: 1, contentType: 1 },
-        );
+    const remainingPreloadUrls = urls
+        .slice(MEMORY_PRELOAD_COUNT)
+        .filter((url) => cachedSet.has(url) && !getMemoryCachedImage(url));
 
-        for (const image of preloadImages) {
-            setMemoryCachedImage(image.url, Buffer.from(image.data), image.contentType, expiresAt);
+    async function preloadRemainingImages() {
+        for (let start = 0; start < remainingPreloadUrls.length; start += MEMORY_PRELOAD_COUNT) {
+            await preloadImagesFromDatabase(
+                remainingPreloadUrls.slice(start, start + MEMORY_PRELOAD_COUNT),
+                now,
+                expiresAt,
+            );
         }
     }
 
@@ -272,7 +293,10 @@ export async function warmDcconImages(info) {
             cursor += 1;
             try {
                 const result = await fetchAndCacheImage(url, expiresAt);
-                if (result.cacheStatus === 'miss') warmed += 1;
+                if (result.cacheStatus === 'miss') {
+                    warmed += 1;
+                    await result.cacheWrite;
+                }
             } catch {
                 failed += 1;
             }
@@ -280,7 +304,10 @@ export async function warmDcconImages(info) {
     }
 
     const workerCount = Math.min(WARM_CONCURRENCY, missingUrls.length);
-    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+    await Promise.all([
+        preloadRemainingImages(),
+        ...Array.from({ length: workerCount }, () => worker()),
+    ]);
 
     if (failed > 0) {
         console.warn(`Failed to warm ${failed} of ${missingUrls.length} DCcon images.`);

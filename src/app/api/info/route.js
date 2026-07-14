@@ -32,13 +32,10 @@ export async function POST(req) {
         }
 
         if (shouldWarmImages) {
-            after(async () => {
-                try {
-                    await warmDcconImages(result.data);
-                } catch (error) {
-                    console.error(`Failed to warm DCcon image cache for ${idx}`, error);
-                }
+            const warming = warmDcconImages(result.data).catch((error) => {
+                console.error(`Failed to warm DCcon image cache for ${idx}`, error);
             });
+            after(() => warming);
         }
 
         return NextResponse.json(result.data, {

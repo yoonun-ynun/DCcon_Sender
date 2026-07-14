@@ -21,13 +21,10 @@ export default async function Page({ searchParams }) {
         });
     }
 
-    after(async () => {
-        try {
-            await warmDcconImages(data);
-        } catch (error) {
-            console.error(`Failed to warm DCcon image cache for ${idx}`, error);
-        }
+    const warming = warmDcconImages(data).catch((error) => {
+        console.error(`Failed to warm DCcon image cache for ${idx}`, error);
     });
+    after(() => warming);
 
     return (
         <div id={'class_doc'}>
