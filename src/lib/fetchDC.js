@@ -140,10 +140,17 @@ export async function dccon_info(pkg_number) {
             referer: 'https://dccon.dcinside.com/index/package_list',
         },
         body: body,
+        cache: 'no-store',
     });
+    if (!stream.ok) {
+        throw new Error(`DCcon info request failed with status ${stream.status}`);
+    }
     const res = await stream.json();
+    if (!res?.info || !Array.isArray(res.detail)) {
+        throw new Error('DCcon info response is invalid');
+    }
     data.title = res.info.title;
-    data.description = res.info.description;
+    data.description = res.info.description ?? '';
     data.main_img = `//dcimg5.dcinside.com/dccon.php?no=${res.info.main_img_path}`;
     data.idx = pkg_number;
     data.path = [];

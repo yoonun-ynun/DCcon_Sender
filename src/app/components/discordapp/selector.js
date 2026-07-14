@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import './style.css';
 import List from '@/app/components/discordapp/list.js';
@@ -9,9 +9,16 @@ import List from '@/app/components/discordapp/list.js';
  * @typedef {Object} DcconList
  * @property {string | undefined} title
  * @property {string | undefined} description
- * @property { string } main_img
- * @property { string } idx
- * @property { string[] } path
+ * @property {string} main_img
+ * @property {string} idx
+ * @property {{addr: string, ext?: string}[]} path
+ */
+
+/**
+ * @typedef {Object} DcconSummary
+ * @property {string} idx
+ * @property {string} img
+ * @property {string | undefined} title
  */
 
 /**
@@ -24,8 +31,8 @@ import List from '@/app/components/discordapp/list.js';
 /**
  * @typedef {Object} DCconInfo
  * @property {number} rank
- * @property { string } package_idx
- * @property { string } title
+ * @property {string} package_idx
+ * @property {string} title
  * @property {string} desc
  * @property {string} nick_name
  * @property {string} price
@@ -33,89 +40,157 @@ import List from '@/app/components/discordapp/list.js';
  */
 
 /**
- * @param { string } discordId
+ * @param {unknown} item
+ * @param {Map<string, DCconInfo>} popularByIdx
+ * @returns {DcconSummary | null}
+ */
+function normalizeRegisteredItem(item, popularByIdx) {
+    const idx = typeof item === 'string' ? item : item?.idx;
+    if (!idx) return null;
+
+    const normalizedIdx = String(idx);
+    const popular = popularByIdx.get(normalizedIdx);
+
+    return {
+        idx: normalizedIdx,
+        img: typeof item === 'object' && item?.img ? String(item.img) : (popular?.img ?? ''),
+        title: popular?.title,
+    };
+}
+
+/**
+ * @param {string} discordId
  * @param {Getters} getters
- * @param { {day: DCconInfo[], week: DCconInfo[], month: DCconInfo[]} } tops
+ * @param {{day: DCconInfo[], week: DCconInfo[], month: DCconInfo[]}} tops
  * @param {{id: string, name: string} | undefined} channelId
  * @returns {React.JSX.Element}
  * @constructor
  */
 export default function Selector({ discordId, getters, tops, channelId }) {
     const [msg, setMsg] = useState('');
-    const [listInfo, setListInfo] = useState(
-        /** @type {{key: string, value: DcconList, empty?: boolean}[]} */ [],
-    );
+    const [listInfo, setListInfo] = useState(/** @type {DcconSummary[]} */ ([]));
+    const [selectedInfo, setSelectedInfo] = useState(/** @type {DcconList | null} */ (null));
+    const [isInfoLoading, setIsInfoLoading] = useState(false);
     const [mode, setMode] = useState('registered');
-    const [selected, setSelected] = useState(1);
+    const [selected, setSelected] = useState(/** @type {string | null} */ (null));
+    const infoAbortRef = useRef(/** @type {AbortController | null} */ (null));
 
     useEffect(() => {
-        let called = false;
-        (async () => {
-            /**@type {string[]} **/
-            let list = [];
-            if (mode === 'registered') {
-                const listRes = await fetch(`/api/controller?userId=${discordId}`);
-                if (!listRes.ok) {
-                    setMsg('id로 부터 등록된 리스트를 불러오는 도중 오류가 발생하였습니다.');
-                    return;
-                }
+        let cancelled = false;
+        infoAbortRef.current?.abort();
+        setSelected(null);
+        setSelectedInfo(null);
+        setIsInfoLoading(false);
+        setMsg('');
 
-                list = (await listRes.json()).list ?? [];
-            } else {
+        const popularItems = [...(tops.day ?? []), ...(tops.week ?? []), ...(tops.month ?? [])];
+        const popularByIdx = new Map(popularItems.map((item) => [String(item.package_idx), item]));
+
+        async function loadList() {
+            if (mode !== 'registered') {
                 const target =
                     mode === 'month' ? tops.month : mode === 'week' ? tops.week : tops.day;
                 if (!target) {
+                    setListInfo([]);
                     setMsg('인기 디시콘 정보를 찾을 수 없습니다.');
                     return;
                 }
 
-                list = target.map((item) => {
-                    return item.package_idx;
-                });
+                setListInfo(
+                    target.map((item) => ({
+                        idx: String(item.package_idx),
+                        img: item.img,
+                        title: item.title,
+                    })),
+                );
+                return;
             }
-            setMsg(list.toString());
-            if (called) return;
-            /** @type { DcconList[] } */
-            const info = await Promise.all(
-                list.map(async (item) => {
-                    return (
-                        await fetch('/api/info', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ idx: item }),
-                        })
-                    ).json();
-                }),
-            );
-            setMsg(info.toString());
-            if (called) return;
-            setListInfo([
-                {
-                    key: '__empty__',
-                    empty: true,
-                    value: {
-                        main_img: '',
-                        idx: '',
-                        path: [],
-                    },
-                },
-                ...info.map((item) => {
-                    return {
-                        key: item.idx,
-                        value: item,
-                    };
-                }),
-            ]);
-        })();
+
+            if (!discordId) {
+                setListInfo([]);
+                setMsg('사용자 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            try {
+                const listRes = await fetch(
+                    `/api/controller?userId=${encodeURIComponent(discordId)}`,
+                );
+                if (!listRes.ok) {
+                    throw new Error('Failed to load registered DCcon list');
+                }
+
+                const list = (await listRes.json()).list ?? [];
+                if (cancelled) return;
+
+                setListInfo(
+                    list.map((item) => normalizeRegisteredItem(item, popularByIdx)).filter(Boolean),
+                );
+            } catch (error) {
+                if (cancelled) return;
+                console.error(error);
+                setListInfo([]);
+                setMsg('등록된 디시콘 목록을 불러오는 도중 오류가 발생하였습니다.');
+            }
+        }
+
+        loadList();
 
         return () => {
-            called = true;
+            cancelled = true;
+            infoAbortRef.current?.abort();
         };
     }, [discordId, mode, tops]);
 
-    function setSelect(event) {
-        const idx = Number(event.currentTarget.id);
-        setSelected(idx);
+    async function setSelect(item) {
+        infoAbortRef.current?.abort();
+        const controller = new AbortController();
+        infoAbortRef.current = controller;
+
+        setSelected(item.idx);
+        setSelectedInfo(null);
+        setIsInfoLoading(true);
+        setMsg('');
+
+        try {
+            const response = await fetch('/api/info', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idx: item.idx }),
+                signal: controller.signal,
+            });
+            if (!response.ok) {
+                throw new Error('Failed to load DCcon info');
+            }
+
+            const info = await response.json();
+            if (controller.signal.aborted) return;
+
+            setSelectedInfo(info);
+            if (!item.img && info.main_img) {
+                setListInfo((current) =>
+                    current.map((entry) =>
+                        entry.idx === item.idx ? { ...entry, img: info.main_img } : entry,
+                    ),
+                );
+
+                if (mode === 'registered') {
+                    fetch('/api/controller', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idx: item.idx, img: info.main_img }),
+                    }).catch((error) => console.error('Failed to migrate DCcon image', error));
+                }
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error(error);
+            setMsg('디시콘 정보를 불러오는 도중 오류가 발생하였습니다.');
+        } finally {
+            if (infoAbortRef.current === controller) {
+                setIsInfoLoading(false);
+            }
+        }
     }
 
     function changeMode(event) {
@@ -124,40 +199,48 @@ export default function Selector({ discordId, getters, tops, channelId }) {
 
     return (
         <div>
-            <List data={listInfo[selected]?.value ?? {}} getters={getters} channelId={channelId} />
+            {isInfoLoading ? (
+                <div className="dcconInfoStatus">디시콘 정보를 불러오는 중입니다.</div>
+            ) : msg ? (
+                <div className="dcconInfoStatus error">{msg}</div>
+            ) : (
+                <List data={selectedInfo ?? {}} getters={getters} channelId={channelId} />
+            )}
             <div className={'selectList'}>
                 <div className={'list'} id={'DCconList'}>
-                    {listInfo.map((value, key) => {
-                        return (
-                            <div
-                                className={`item ${key === selected ? 'active' : ''}  ${value.empty ? 'stickySelectItem' : ''}`}
-                                key={value.key}
-                                id={String(key)}
-                                onClick={value.empty ? undefined : setSelect}
-                            >
-                                {value.empty ? (
-                                    <select
-                                        className="dcconSelect"
-                                        value={mode}
-                                        onChange={changeMode}
-                                        onClick={(event) => event.stopPropagation()}
-                                    >
-                                        <option value="registered">등록됨</option>
-                                        <option value="month">월간인기</option>
-                                        <option value="week">주간인기</option>
-                                        <option value="day">일간인기</option>
-                                    </select>
-                                ) : (
-                                    <Image
-                                        src={`/api/img?u=${encodeURIComponent(value.value.main_img)}`}
-                                        alt=""
-                                        width={50}
-                                        height={50}
-                                    />
-                                )}
-                            </div>
-                        );
-                    })}
+                    <div className="item stickySelectItem">
+                        <select
+                            className="dcconSelect"
+                            value={mode}
+                            onChange={changeMode}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            <option value="registered">등록됨</option>
+                            <option value="month">월간인기</option>
+                            <option value="week">주간인기</option>
+                            <option value="day">일간인기</option>
+                        </select>
+                    </div>
+                    {listInfo.map((item) => (
+                        <div
+                            className={`item ${item.idx === selected ? 'active' : ''}`}
+                            key={item.idx}
+                            onClick={() => setSelect(item)}
+                            role="button"
+                            title={item.title}
+                        >
+                            {item.img ? (
+                                <Image
+                                    src={`/api/img?u=${encodeURIComponent(item.img)}`}
+                                    alt={item.title ?? ''}
+                                    width={50}
+                                    height={50}
+                                />
+                            ) : (
+                                <span className="dcconImageFallback">{item.idx.slice(-3)}</span>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

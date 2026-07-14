@@ -1,30 +1,42 @@
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
+import { getCachedDcconInfo, refreshStaleDcconInfo } from '@/lib/dcconInfoCache';
+
+export const runtime = 'nodejs';
 
 export async function POST(req) {
-    const info = await req.json();
-    console.log(info);
-    const pkg_number = info.idx;
-    const data = {};
+    let body;
+    try {
+        body = await req.json();
+    } catch {
+        return NextResponse.json({ message: 'invalid JSON body' }, { status: 400 });
+    }
 
-    const body = new FormData();
-    body.append('package_idx', pkg_number);
+    const idx = body?.idx === undefined || body?.idx === null ? '' : String(body.idx).trim();
+    if (!idx) {
+        return NextResponse.json({ message: 'idx is missing' }, { status: 400 });
+    }
 
-    const stream = await fetch('https://dccon.dcinside.com/index/package_detail', {
-        method: 'POST',
-        headers: {
-            'x-requested-with': 'XMLHttpRequest',
-            referer: 'https://dccon.dcinside.com/index/package_list',
-        },
-        body: body,
-    });
-    const res = await stream.json();
-    data.title = res.info.title;
-    data.description = res.info.description;
-    data.main_img = `//dcimg5.dcinside.com/dccon.php?no=${res.info.main_img_path}`;
-    data.idx = pkg_number;
-    data.path = [];
-    res.detail.forEach((item) => {
-        data.path.push({ addr: `//dcimg5.dcinside.com/dccon.php?no=${item.path}`, ext: item.ext });
-    });
-    return NextResponse.json(data);
+    try {
+        const result = await getCachedDcconInfo(idx);
+
+        if (result.isStale) {
+            after(async () => {
+                try {
+                    await refreshStaleDcconInfo(idx);
+                } catch (error) {
+                    console.error(`Failed to refresh DCcon info cache for ${idx}`, error);
+                }
+            });
+        }
+
+        return NextResponse.json(result.data, {
+            headers: { 'x-dccon-cache': result.cacheStatus },
+        });
+    } catch (error) {
+        console.error(`Failed to load DCcon info for ${idx}`, error);
+        return NextResponse.json(
+            { message: '디시콘 정보를 불러오지 못했습니다.' },
+            { status: 502 },
+        );
+    }
 }

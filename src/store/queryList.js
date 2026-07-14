@@ -7,22 +7,28 @@ async function fetchAll() {
     const res = await fetch('/api/controller');
     if (!res.ok) throw new Error('failed to fetch list');
     const temp = await res.json();
-    const list = temp.list;
+    const list = (temp.list ?? [])
+        .map((item) =>
+            typeof item === 'string'
+                ? { idx: item, img: '' }
+                : { idx: String(item.idx), img: item.img ?? '' },
+        )
+        .filter((item) => item.idx);
     const infos = await Promise.all(
         list.map(async (item) => {
             const res = await fetch('/api/info', {
                 method: 'POST',
-                body: JSON.stringify({ idx: item }),
+                body: JSON.stringify({ idx: item.idx }),
                 headers: { 'Content-Type': 'application/json' },
             });
             if (!res.ok) throw new Error('failed to fetch list');
-            return res.json();
+            return { info: await res.json(), item };
         }),
     );
-    return infos.map((info) => ({
+    return infos.map(({ info, item }) => ({
         idx: info.idx,
         name: info.title,
-        url: info.main_img,
+        url: item.img || info.main_img,
     }));
 }
 

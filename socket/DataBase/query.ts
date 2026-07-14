@@ -4,9 +4,11 @@ const VERSION = 1;
 
 export async function getList(user_id: string) {
     const result = await User.findOne({ user_id: user_id }, { _id: 0, list: 1 }).lean<{
-        list: string[];
+        list: (string | { idx: string; img: string })[];
     }>();
-    return result?.list ?? [];
+    return (result?.list ?? [])
+        .map((item) => (typeof item === 'string' ? item : item?.idx))
+        .filter((idx): idx is string => Boolean(idx));
 }
 
 export async function getGuildList() {

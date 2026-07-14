@@ -1,12 +1,24 @@
 import './iframe.css';
 import Button from '@/app/components/info/Button';
-import { dccon_info } from '@/lib/fetchDC';
 import Image from './Image.js';
+import { after } from 'next/server';
+import { getCachedDcconInfo, refreshStaleDcconInfo } from '@/lib/dcconInfoCache';
 
 export default async function Page({ searchParams }) {
     const params = await searchParams;
     const idx = params.idx;
-    const data = await dccon_info(idx);
+    const result = await getCachedDcconInfo(idx);
+    const data = result.data;
+
+    if (result.isStale) {
+        after(async () => {
+            try {
+                await refreshStaleDcconInfo(idx);
+            } catch (error) {
+                console.error(`Failed to refresh DCcon info cache for ${idx}`, error);
+            }
+        });
+    }
 
     return (
         <div id={'class_doc'}>

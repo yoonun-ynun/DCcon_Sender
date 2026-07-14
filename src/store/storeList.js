@@ -15,7 +15,7 @@ export const storeList = create(
                         data: { ...state.data, [idx]: { name: name, url: url } },
                     };
                 });
-                fetchAdd(idx);
+                fetchAdd(idx, url);
             },
             remove: (idx) =>
                 set((state) => {
@@ -72,13 +72,13 @@ export const storeChannel = create((set, get) => ({
     },
 }));
 
-function fetchAdd(idx) {
+function fetchAdd(idx, img) {
     fetch('/api/controller', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idx: idx }),
+        body: JSON.stringify({ idx, img }),
     })
         .then((res) => {
             if (res.status === 404 || res.status === 405) {

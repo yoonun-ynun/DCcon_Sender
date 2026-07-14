@@ -168,6 +168,26 @@
     border-radius: 8px;
 }
 
+.dcconImageFallback {
+    max-width: 45px;
+    overflow: hidden;
+    color: #aeb2bd;
+    font-size: 11px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+}
+
+.dcconInfoStatus {
+    min-height: 80px;
+    padding: 24px 16px;
+    color: #c7c9d1;
+    text-align: center;
+}
+
+.dcconInfoStatus.error {
+    color: #f0a6a6;
+}
+
 .stickySelectItem {
     position: sticky;
     left: 0;
