@@ -166,7 +166,15 @@ export const { handlers, auth, signIn } = NextAuth({
 
                 token.authType = 'discord-oauth';
 
-                delete token.discordEmbedded;
+                token.discordEmbedded = {
+                    username: user.name ?? null,
+
+                    accessToken: account.access_token,
+
+                    refreshToken: account.refresh_token,
+
+                    expiresAt: account.expires_at,
+                };
 
                 return token;
             }
