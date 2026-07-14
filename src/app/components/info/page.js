@@ -3,6 +3,7 @@ import Button from '@/app/components/info/Button';
 import Image from './Image.js';
 import { after } from 'next/server';
 import { getCachedDcconInfo, refreshStaleDcconInfo } from '@/lib/dcconInfoCache';
+import { warmDcconImages } from '@/lib/dcconImageCache';
 
 export default async function Page({ searchParams }) {
     const params = await searchParams;
@@ -19,6 +20,14 @@ export default async function Page({ searchParams }) {
             }
         });
     }
+
+    after(async () => {
+        try {
+            await warmDcconImages(data);
+        } catch (error) {
+            console.error(`Failed to warm DCcon image cache for ${idx}`, error);
+        }
+    });
 
     return (
         <div id={'class_doc'}>

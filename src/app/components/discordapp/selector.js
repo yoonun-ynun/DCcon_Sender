@@ -174,7 +174,7 @@ export default function Selector({ discordId, getters, tops, channelId }) {
             const response = await fetch('/api/info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idx: item.idx }),
+                body: JSON.stringify({ idx: item.idx, warmImages: true }),
                 signal: controller.signal,
             });
             if (!response.ok) {

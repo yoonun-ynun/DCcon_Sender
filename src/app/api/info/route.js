@@ -1,5 +1,6 @@
 import { after, NextResponse } from 'next/server';
 import { getCachedDcconInfo, refreshStaleDcconInfo } from '@/lib/dcconInfoCache';
+import { warmDcconImages } from '@/lib/dcconImageCache';
 
 export const runtime = 'nodejs';
 
@@ -12,6 +13,7 @@ export async function POST(req) {
     }
 
     const idx = body?.idx === undefined || body?.idx === null ? '' : String(body.idx).trim();
+    const shouldWarmImages = body?.warmImages === true;
     if (!idx) {
         return NextResponse.json({ message: 'idx is missing' }, { status: 400 });
     }
@@ -25,6 +27,16 @@ export async function POST(req) {
                     await refreshStaleDcconInfo(idx);
                 } catch (error) {
                     console.error(`Failed to refresh DCcon info cache for ${idx}`, error);
+                }
+            });
+        }
+
+        if (shouldWarmImages) {
+            after(async () => {
+                try {
+                    await warmDcconImages(result.data);
+                } catch (error) {
+                    console.error(`Failed to warm DCcon image cache for ${idx}`, error);
                 }
             });
         }

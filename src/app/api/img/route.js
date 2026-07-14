@@ -1,55 +1,28 @@
-const ALLOWED_HOSTS = ['dcimg5.dcinside.com'];
+import { getCachedDcconImage } from '@/lib/dcconImageCache';
+
+export const runtime = 'nodejs';
 
 export async function GET(req) {
     const { searchParams } = new URL(req.url);
-    const u = searchParams.get('u');
-    if (!u) return new Response(null, { status: 400 });
+    const url = searchParams.get('u');
+    if (!url) return new Response(null, { status: 400 });
 
-    const targetUrl = `https:${u}`;
-
-    let parsed;
     try {
-        parsed = new URL(targetUrl);
-    } catch {
-        return new Response('Invalid URL', { status: 400 });
-    }
+        const image = await getCachedDcconImage(url);
 
-    if (!ALLOWED_HOSTS.includes(parsed.hostname)) {
-        return new Response(null, { status: 403 });
-    }
-
-    const upstream = await fetch(parsed.toString(), {
-        method: 'POST',
-        headers: {
-            referer: 'https://dccon.dcinside.com/',
-        },
-    });
-
-    if (!upstream.ok || !upstream.body) {
-        return new Response(`DCcon server responsed ${upstream.status}`, {
-            status: upstream.status,
+        return new Response(image.data, {
+            headers: {
+                'content-type': image.contentType,
+                'content-length': String(image.data.byteLength),
+                'cache-control':
+                    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400, immutable',
+                'accept-ranges': 'bytes',
+                'content-disposition': 'inline',
+                'x-dccon-image-cache': image.cacheStatus,
+            },
         });
+    } catch (error) {
+        const status = Number.isInteger(error?.status) ? error.status : 502;
+        return new Response(error?.message ?? 'Failed to load DCcon image', { status });
     }
-
-    const buf = await upstream.arrayBuffer();
-    const uint8 = new Uint8Array(buf);
-
-    let contentType = 'image/png'; // 기본값
-
-    if (uint8[0] === 0x47 && uint8[1] === 0x49 && uint8[2] === 0x46 && uint8[3] === 0x38) {
-        contentType = 'image/gif';
-    } else if (uint8[0] === 0x89 && uint8[1] === 0x50 && uint8[2] === 0x4e && uint8[3] === 0x47) {
-        contentType = 'image/png';
-    }
-    const len = String(buf.byteLength);
-
-    return new Response(Buffer.from(buf), {
-        headers: {
-            'content-type': contentType,
-            'content-length': len,
-            'cache-control': 'public, max-age=86400, s-maxage=86400',
-            'accept-ranges': 'bytes',
-            'content-disposition': 'inline',
-        },
-    });
 }
