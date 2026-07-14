@@ -74,6 +74,7 @@ export default function Selector({ discordId, getters, tops, channelId }) {
     const [mode, setMode] = useState('registered');
     const [selected, setSelected] = useState(/** @type {string | null} */ (null));
     const infoAbortRef = useRef(/** @type {AbortController | null} */ (null));
+    const infoCacheRef = useRef(/** @type {Map<string, DcconList>} */ (new Map()));
 
     useEffect(() => {
         let cancelled = false;
@@ -144,13 +145,21 @@ export default function Selector({ discordId, getters, tops, channelId }) {
 
     async function setSelect(item) {
         infoAbortRef.current?.abort();
+        setSelected(item.idx);
+        setMsg('');
+
+        const cachedInfo = infoCacheRef.current.get(item.idx);
+        if (cachedInfo) {
+            infoAbortRef.current = null;
+            setSelectedInfo(cachedInfo);
+            setIsInfoLoading(false);
+            return;
+        }
+
         const controller = new AbortController();
         infoAbortRef.current = controller;
-
-        setSelected(item.idx);
         setSelectedInfo(null);
         setIsInfoLoading(true);
-        setMsg('');
 
         try {
             const response = await fetch('/api/info', {
@@ -166,6 +175,7 @@ export default function Selector({ discordId, getters, tops, channelId }) {
             const info = await response.json();
             if (controller.signal.aborted) return;
 
+            infoCacheRef.current.set(item.idx, info);
             setSelectedInfo(info);
             if (!item.img && info.main_img) {
                 setListInfo((current) =>
