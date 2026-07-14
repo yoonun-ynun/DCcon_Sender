@@ -75,6 +75,7 @@ export default function Selector({ discordId, getters, tops, channelId }) {
     const [selected, setSelected] = useState(/** @type {string | null} */ (null));
     const infoAbortRef = useRef(/** @type {AbortController | null} */ (null));
     const infoCacheRef = useRef(/** @type {Map<string, DcconList>} */ (new Map()));
+    const registeredListCacheRef = useRef(/** @type {Map<string, DcconSummary[]>} */ (new Map()));
 
     useEffect(() => {
         let cancelled = false;
@@ -113,6 +114,12 @@ export default function Selector({ discordId, getters, tops, channelId }) {
                 return;
             }
 
+            const cachedList = registeredListCacheRef.current.get(discordId);
+            if (cachedList) {
+                setListInfo(cachedList);
+                return;
+            }
+
             try {
                 const listRes = await fetch(
                     `/api/controller?userId=${encodeURIComponent(discordId)}`,
@@ -122,11 +129,13 @@ export default function Selector({ discordId, getters, tops, channelId }) {
                 }
 
                 const list = (await listRes.json()).list ?? [];
+                const normalizedList = list
+                    .map((item) => normalizeRegisteredItem(item, popularByIdx))
+                    .filter(Boolean);
+                registeredListCacheRef.current.set(discordId, normalizedList);
                 if (cancelled) return;
 
-                setListInfo(
-                    list.map((item) => normalizeRegisteredItem(item, popularByIdx)).filter(Boolean),
-                );
+                setListInfo(normalizedList);
             } catch (error) {
                 if (cancelled) return;
                 console.error(error);
@@ -178,11 +187,15 @@ export default function Selector({ discordId, getters, tops, channelId }) {
             infoCacheRef.current.set(item.idx, info);
             setSelectedInfo(info);
             if (!item.img && info.main_img) {
-                setListInfo((current) =>
-                    current.map((entry) =>
+                setListInfo((current) => {
+                    const nextList = current.map((entry) =>
                         entry.idx === item.idx ? { ...entry, img: info.main_img } : entry,
-                    ),
-                );
+                    );
+                    if (mode === 'registered' && discordId) {
+                        registeredListCacheRef.current.set(discordId, nextList);
+                    }
+                    return nextList;
+                });
 
                 if (mode === 'registered') {
                     fetch('/api/controller', {
