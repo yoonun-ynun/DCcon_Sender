@@ -50,6 +50,7 @@ export default function Image({ src, alt, wrapperClassName = '', width, height }
                 style={{ opacity: loaded ? 1 : 0 }}
                 width={width}
                 height={height}
+                unoptimized
             />
         </div>
     );
