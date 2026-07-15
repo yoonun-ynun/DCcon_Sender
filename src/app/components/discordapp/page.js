@@ -1,12 +1,10 @@
-'use server';
-
 import Frame from '@/app/components/discordapp/frame.js';
 import { day_top, week_top, month_top } from '@/lib/fetchDC';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
-    const day = await day_top();
-    const week = await week_top();
-    const month = await month_top();
+    const [day, week, month] = await Promise.all([day_top(), week_top(), month_top()]);
     return (
         <Frame
             CLIENT_ID={process.env.AUTH_DISCORD_ID}

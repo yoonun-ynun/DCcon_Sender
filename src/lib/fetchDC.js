@@ -1,47 +1,43 @@
 import { JSDOM } from 'jsdom';
+import { getCachedDcconTop } from '@/lib/dcconTopCache';
 
-export async function day_top() {
-    const res = await fetch('https://json2.dcinside.com/json1/dccon_day_top100.php', {
+const TOP_URLS = {
+    day: 'https://json2.dcinside.com/json1/dccon_day_top100.php',
+    week: 'https://json2.dcinside.com/json1/dccon_week_top100.php',
+    month: 'https://json2.dcinside.com/json1/dccon_month_top100.php',
+};
+
+async function fetchTop(type) {
+    const res = await fetch(TOP_URLS[type], {
         method: 'GET',
         headers: {
             referer: 'https://dccon.dcinside.com/',
         },
-        next: { revalidate: 3600 },
+        cache: 'no-store',
     });
-    const data = await res.text();
-    let response = data.substring(1, data.length - 1); //JSONP to JSON
-    response = JSON.parse(response);
+
+    if (!res.ok) {
+        throw new Error(`${type} DCcon top request failed with status ${res.status}`);
+    }
+
+    const jsonp = (await res.text()).trim();
+    const response = JSON.parse(jsonp.substring(1, jsonp.length - 1));
+    if (!Array.isArray(response)) {
+        throw new Error(`${type} DCcon top response is invalid`);
+    }
     return response;
+}
+
+export async function day_top() {
+    return getCachedDcconTop('day', () => fetchTop('day'));
 }
 
 export async function week_top() {
-    const res = await fetch('https://json2.dcinside.com/json1/dccon_week_top100.php', {
-        method: 'GET',
-        headers: {
-            referer: 'https://dccon.dcinside.com/',
-        },
-        next: { revalidate: 3600 },
-    });
-
-    const data = await res.text();
-    let response = data.substring(1, data.length - 1); //JSONP to JSON
-    response = JSON.parse(response);
-    return response;
+    return getCachedDcconTop('week', () => fetchTop('week'));
 }
 
 export async function month_top() {
-    const res = await fetch('https://json2.dcinside.com/json1/dccon_month_top100.php', {
-        method: 'GET',
-        headers: {
-            referer: 'https://dccon.dcinside.com/',
-        },
-        next: { revalidate: 3600 },
-    });
-
-    const data = await res.text();
-    let response = data.substring(1, data.length - 1); //JSONP to JSON
-    response = JSON.parse(response);
-    return response;
+    return getCachedDcconTop('month', () => fetchTop('month'));
 }
 
 export async function search(text, mode) {
@@ -103,7 +99,7 @@ export async function search(text, mode) {
         try {
             // 2. 모든 요청이 완료될 때까지 병렬로 기다림
             pageResults = await Promise.all(pagePromises);
-        } catch (err) {
+        } catch {
             return [];
         }
 

@@ -3,6 +3,7 @@
 import Selector from '@/app/components/discordapp/selector.js';
 import { getSession } from 'next-auth/react';
 import Channels from '../components/discordapp/channels.js';
+import PipReady from './PipReady.js';
 
 export default function Load({ tops, session }) {
     const getters = {
@@ -31,6 +32,7 @@ export default function Load({ tops, session }) {
     };
     return (
         <div>
+            <PipReady />
             <Channels getters={/** @type {Getters | null} */ getters} />
             <Selector discordId={session.user.discordId} tops={tops} getters={getters}></Selector>
         </div>
