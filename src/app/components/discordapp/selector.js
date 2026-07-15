@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import Image from '@/app/components/info/Image.js';
 import './style.css';
 import List from '@/app/components/discordapp/list.js';
 
@@ -54,7 +54,7 @@ function normalizeRegisteredItem(item, popularByIdx) {
     return {
         idx: normalizedIdx,
         img: typeof item === 'object' && item?.img ? String(item.img) : (popular?.img ?? ''),
-        title: popular?.title,
+        title: popular?.title ?? (typeof item === 'object' ? item?.title : undefined),
     };
 }
 
@@ -116,7 +116,11 @@ export default function Selector({ discordId, getters, tops, channelId }) {
 
             const cachedList = registeredListCacheRef.current.get(discordId);
             if (cachedList) {
-                setListInfo(cachedList);
+                const refreshedList = cachedList
+                    .map((item) => normalizeRegisteredItem(item, popularByIdx))
+                    .filter(Boolean);
+                registeredListCacheRef.current.set(discordId, refreshedList);
+                setListInfo(refreshedList);
                 return;
             }
 

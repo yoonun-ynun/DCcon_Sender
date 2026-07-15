@@ -1,10 +1,20 @@
 'use client';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect } from 'react';
 
 export default function Header() {
     const { data: session } = useSession();
     const router = useRouter();
+
+    const prefetchSender = useCallback(() => {
+        router.prefetch('/sender');
+        void import('@/app/sender/frame.js').catch(() => {});
+    }, [router]);
+
+    useEffect(() => {
+        if (session) prefetchSender();
+    }, [prefetchSender, session]);
 
     async function openPIP() {
         const senderUrl = new URL('/sender', window.location.origin).toString();
@@ -109,6 +119,7 @@ export default function Header() {
                 pipWindow.removeEventListener('message', handleReadyMessage);
                 pipWindow.removeEventListener('pagehide', cleanupReadyListeners);
                 iframe.removeEventListener('load', revealIframe);
+                if (readyPoll) pipWindow.clearInterval(readyPoll);
             }
 
             function revealIframe() {
@@ -126,6 +137,22 @@ export default function Header() {
                     revealIframe();
                 }
             }
+
+            const readyPoll = pipWindow.setInterval(() => {
+                try {
+                    const frameUrl = new URL(iframe.contentWindow.location.href);
+                    const frameDocument = iframe.contentDocument;
+                    const hasVisibleShell = frameDocument?.querySelector(
+                        'main[role="status"], #selectorList',
+                    );
+
+                    if (frameUrl.origin === window.location.origin && hasVisibleShell) {
+                        revealIframe();
+                    }
+                } catch {
+                    // Cross-origin redirects are revealed by the iframe load event.
+                }
+            }, 50);
 
             pipWindow.addEventListener('message', handleReadyMessage);
             pipWindow.addEventListener('pagehide', cleanupReadyListeners, { once: true });
@@ -152,7 +179,13 @@ export default function Header() {
 
             <span className="button">
                 {session ? (
-                    <button id="Discord_login" type="button" onClick={openPIP}>
+                    <button
+                        id="Discord_login"
+                        type="button"
+                        onClick={openPIP}
+                        onPointerEnter={prefetchSender}
+                        onFocus={prefetchSender}
+                    >
                         PIP 열기
                     </button>
                 ) : undefined}
