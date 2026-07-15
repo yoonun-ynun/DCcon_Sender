@@ -194,6 +194,9 @@
     transition: opacity 0.3s ease;
     z-index: 0;
     border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .dccon-real {
     position: relative;

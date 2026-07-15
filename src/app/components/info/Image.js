@@ -43,17 +43,18 @@ export default function Image({ src, alt, wrapperClassName = '', width, height }
                 height,
             }}
         >
-            <div className="dccon-bg" style={{ opacity: loaded ? 0 : 1 }} />
-            <NextImage
-                ref={imgRef}
-                src={imageSrc}
-                alt={alt}
-                className="dccon-real"
-                style={{ opacity: loaded ? 1 : 0 }}
-                width={width}
-                height={height}
-                unoptimized
-            />
+            <div className="dccon-bg" style={{ opacity: loaded ? 0 : 1 }}>
+                <NextImage
+                    ref={imgRef}
+                    src={imageSrc}
+                    alt={alt}
+                    className="dccon-real"
+                    style={{ opacity: loaded ? 1 : 0 }}
+                    width={width}
+                    height={height}
+                    unoptimized
+                />
+            </div>
         </div>
     );
 }

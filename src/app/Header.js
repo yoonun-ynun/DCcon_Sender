@@ -137,7 +137,7 @@ export default function Header() {
             loading.setAttribute('aria-live', 'polite');
             spinner.className = 'pip-loading-spinner';
             spinner.setAttribute('aria-hidden', 'true');
-            loadingLabel.textContent = '보내기 화면을 준비하는 중';
+            loadingLabel.textContent = '전송용 화면을 준비하는 중';
             loading.append(spinner, loadingLabel);
 
             function cleanupReadyListeners() {
