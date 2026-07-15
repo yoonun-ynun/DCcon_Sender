@@ -7,13 +7,61 @@ export default function Header() {
     const router = useRouter();
 
     async function openPIP() {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        const pip = await documentPictureInPicture.requestWindow({
-            width: 100,
-            height: 100,
-        });
-        pip.document.body.innerHTML = '<iframe src="https://yoonun.com/sender"> </iframe>';
+        const senderUrl = new URL('/sender', window.location.origin).toString();
+        const pictureInPicture = window.documentPictureInPicture;
+
+        if (!pictureInPicture?.requestWindow) {
+            window.open(
+                senderUrl,
+                'dccon-sender',
+                'popup=yes,width=450,height=600,resizable=yes,scrollbars=yes',
+            );
+            return;
+        }
+
+        if (pictureInPicture.window && !pictureInPicture.window.closed) {
+            pictureInPicture.window.focus();
+            return;
+        }
+
+        try {
+            const pipWindow = await pictureInPicture.requestWindow({
+                width: 450,
+                height: 600,
+            });
+            const style = pipWindow.document.createElement('style');
+            const iframe = pipWindow.document.createElement('iframe');
+
+            pipWindow.document.title = 'DCcon Sender';
+            style.textContent = `
+                :root, html, body {
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    background: #050507;
+                }
+
+                iframe {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    border: 0;
+                }
+            `;
+
+            iframe.src = senderUrl;
+            iframe.title = 'DCcon Sender';
+            iframe.setAttribute('allow', 'clipboard-read; clipboard-write');
+
+            pipWindow.document.head.append(style);
+            pipWindow.document.body.replaceChildren(iframe);
+        } catch (error) {
+            if (error.name !== 'NotAllowedError') {
+                console.error('Failed to open Picture-in-Picture window', error);
+            }
+        }
     }
 
     return (
@@ -25,7 +73,7 @@ export default function Header() {
 
             <span className="button">
                 {session ? (
-                    <button id="Discord_login" onClick={() => openPIP()}>
+                    <button id="Discord_login" type="button" onClick={openPIP}>
                         PIP 열기
                     </button>
                 ) : undefined}

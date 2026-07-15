@@ -2,6 +2,9 @@
 const nextConfig = {
     allowedDevOrigins: [process.env.AUTH_URL.split('//')[1]],
     productionBrowserSourceMaps: false,
+    images: {
+        localPatterns: [{ pathname: '/api/img/**' }],
+    },
     async rewrites() {
         return [
             {
