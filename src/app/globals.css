@@ -67,12 +67,18 @@ a { color: inherit; text-decoration: none; }
   background-color: rgba(88, 101, 242, 0.1);
   color: var(--primary);
   border: 1px solid rgba(88, 101, 242, 0.3);
+  white-space: nowrap
 }
 #Discord_login:hover {
   background-color: rgba(88, 101, 242, 0.2);
   box-shadow: 0 0 15px rgba(88, 101, 242, 0.3);
 }
 #Discord_symbol { width: 1.2rem; height: 1.2rem; }
+
+.button {
+  display: flex;
+  gap: 10px;
+}
 
 /* =========================================
    Search Bar Styles
