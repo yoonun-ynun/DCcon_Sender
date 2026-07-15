@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { DiscordSDK, RPCCloseCodes } from '@discord/embedded-app-sdk';
-import { getSession, useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import Channels from '@/app/components/discordapp/channels';
 import Selector from '@/app/components/discordapp/selector';
 
@@ -10,6 +10,7 @@ import Selector from '@/app/components/discordapp/selector';
  * @typedef {Object} Getters
  * @property {() => Promise<{ok: boolean, guilds: {id: string, name: string}[], reason: string}>} getGuilds
  * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
+ * @property {() => Promise<{list: unknown[]}>} getRegisteredList
  */
 
 export default function Frame({ CLIENT_ID, tops }) {
@@ -19,7 +20,6 @@ export default function Frame({ CLIENT_ID, tops }) {
     const getters = useRef(null);
     const token = useRef(null);
     const refreshing = useRef(null);
-    const { data, status } = useSession();
     const [msg, setMsg] = useState('초기화중');
     const [session, setSession] = useState(null);
     const [auth, setAuth] = useState(false);
@@ -183,6 +183,11 @@ export default function Frame({ CLIENT_ID, tops }) {
                         const session = await getSession();
                         return session?.user;
                     },
+                    getRegisteredList: async () => {
+                        const response = await fetch('/api/controller', { cache: 'no-store' });
+                        if (!response.ok) throw new Error('Failed to load registered DCcon list');
+                        return await response.json();
+                    },
                     getGuilds: async () => {
                         const guilds = await fetch('/api/embed/guilds', {
                             method: 'POST',
@@ -213,6 +218,12 @@ export default function Frame({ CLIENT_ID, tops }) {
                 getters.current = {
                     getSession: async () => {
                         return await authedFetch('/api/embed/session', { method: 'POST' });
+                    },
+                    getRegisteredList: async () => {
+                        return await authedFetch('/api/controller', {
+                            method: 'GET',
+                            cache: 'no-store',
+                        });
                     },
                     getGuilds: async () => {
                         return await authedFetch('/api/embed/guilds', {

@@ -26,6 +26,11 @@ export default function Load() {
     const [tops, setTops] = useState(EMPTY_TOPS);
     const getters = useMemo(
         () => ({
+            getRegisteredList: async () => {
+                const response = await fetch('/api/controller', { cache: 'no-store' });
+                if (!response.ok) throw new Error('Failed to load registered DCcon list');
+                return await response.json();
+            },
             getGuilds: async () => {
                 const guilds = await fetch('/api/embed/guilds', {
                     method: 'POST',

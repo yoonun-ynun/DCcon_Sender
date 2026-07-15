@@ -12,6 +12,11 @@ export default function Load({ tops }) {
             const session = await getSession();
             return session?.user;
         },
+        getRegisteredList: async () => {
+            const response = await fetch('/api/controller', { cache: 'no-store' });
+            if (!response.ok) throw new Error('Failed to load registered DCcon list');
+            return await response.json();
+        },
         getGuilds: async () => {
             const guilds = await fetch('/api/embed/guilds', {
                 method: 'POST',

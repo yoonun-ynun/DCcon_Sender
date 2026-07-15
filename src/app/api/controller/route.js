@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import User from '@/models/User';
+import { decode } from 'next-auth/jwt';
 
 export const runtime = 'nodejs';
 
@@ -26,12 +27,26 @@ function normalizeList(items) {
     return list;
 }
 
-async function getUserId() {
+async function getUserId(req) {
     const session = await auth();
-    return {
-        session,
-        userId: session?.user?.discordId,
-    };
+    if (session?.user?.discordId) return String(session.user.discordId);
+
+    const authorization = req.headers.get('authorization');
+    if (!authorization?.startsWith('Bearer ')) return null;
+
+    try {
+        const payload = await decode({
+            token: authorization.slice('Bearer '.length),
+            secret: process.env.AUTH_SECRET,
+            salt: 'embedded-token',
+        });
+        const now = Math.floor(Date.now() / 1000);
+        if (!payload?.discordId || !payload.exp || now >= payload.exp) return null;
+
+        return String(payload.discordId);
+    } catch {
+        return null;
+    }
 }
 
 export async function PUT(req) {
@@ -120,9 +135,9 @@ export async function POST(req) {
     return NextResponse.json({ isExist, success: true });
 }
 
-export async function GET() {
-    const { session, userId } = await getUserId();
-    if (!session) {
+export async function GET(req) {
+    const userId = await getUserId(req);
+    if (!userId) {
         return NextResponse.json(
             { success: false, message: '로그인을 먼저 해주세요' },
             { status: 401 },

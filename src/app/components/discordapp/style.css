@@ -13,7 +13,11 @@
     justify-content: center;
     flex-direction: row;
     flex-wrap: wrap;
-    background: linear-gradient(to bottom, rgba(5, 5, 7, 0.8), transparent); /* 상단 부드러운 음영 */
+    background: linear-gradient(
+        to bottom,
+        rgba(5, 5, 7, 0.8),
+        transparent
+    ); /* 상단 부드러운 음영 */
 }
 
 .selector {
@@ -46,6 +50,8 @@
    2. 이미지 리스트 (디시콘 그리드 영역)
 ========================================= */
 .imageWrap {
+    --dccon-grid-track: 110px;
+    --dccon-grid-gap: 12px;
     display: flex;
     left: 0;
     right: 0;
@@ -54,13 +60,13 @@
     justify-content: center;
     padding: 10px 15px;
     touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 .image_list {
     display: grid; /* inline-grid 대신 일반 grid 사용 */
-    grid-template-columns: repeat(auto-fill, 110px); /* 1fr 제거: 무한 팽창 방지! 딱 110px로 고정 */
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, var(--dccon-grid-track));
+    gap: var(--dccon-grid-gap);
     justify-content: center;
     width: 100%;
     max-width: 1600px; /* 기존 600px 제한을 풀어 와이드 모니터 전체를 활용하도록 변경 */
@@ -289,17 +295,20 @@
 }
 
 /* 모드별 세련된 컬러링 (테두리 + 글자색 포인트) */
-.Double.mode_1 { /* 싱글콘: 파랑 */
+.Double.mode_1 {
+    /* 싱글콘: 파랑 */
     background-color: rgba(88, 101, 242, 0.15);
     border: 1px solid rgba(88, 101, 242, 0.4);
     color: #8fa0ff;
 }
-.Double.mode_2 { /* 더블콘: 노랑 */
+.Double.mode_2 {
+    /* 더블콘: 노랑 */
     background-color: rgba(250, 204, 21, 0.15);
     border: 1px solid rgba(250, 204, 21, 0.4);
     color: #fde047;
 }
-.Double.mode_3 { /* 트리플콘: 빨강 */
+.Double.mode_3 {
+    /* 트리플콘: 빨강 */
     background-color: rgba(239, 68, 68, 0.15);
     border: 1px solid rgba(239, 68, 68, 0.4);
     color: #fca5a5;
@@ -352,7 +361,9 @@
     cursor: pointer;
     transition: color 0.2s;
 }
-.replySheetClose:hover { color: #ffffff; }
+.replySheetClose:hover {
+    color: #ffffff;
+}
 
 .replyItem {
     padding: 12px;
@@ -416,11 +427,14 @@
 }
 
 @media (max-width: 225px), (max-height: 225px) {
-    .loader { font-size: 60px; }
+    .loader {
+        font-size: 60px;
+    }
 }
 
-.loader:before, .loader:after {
-    content: "";
+.loader:before,
+.loader:after {
+    content: '';
     top: 0;
     display: block;
     width: 1em;
@@ -434,22 +448,45 @@
     animation: spin 1.2s infinite ease-in-out;
 }
 
-@media screen and (max-width: 400px){
-    .dcconImageItem{
-        width: 100px !important;
-        height: 100px !important;
+@media screen and (max-width: 600px) {
+    .imageWrap {
+        --dccon-grid-track: minmax(88px, 100px);
+        --dccon-grid-gap: 4px;
+        padding: 6px 4px;
+    }
+    .dcconImageItem {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1;
+        padding: 4px;
         overflow: hidden !important;
     }
-    .dcconImageItem .dccon-wrapper{
-        width: 80px !important;
-        height: 80px !important;
+    .dcconImageItem .dccon-wrapper {
+        width: min(80px, 100%) !important;
+        height: auto !important;
+        aspect-ratio: 1;
         overflow: hidden !important;
-    }
-    .image_list{
-        gap: 5px;
     }
 }
 
+.platform_mobile .imageWrap {
+    --dccon-grid-track: minmax(88px, 100px);
+    --dccon-grid-gap: 4px;
+    padding: 6px 4px;
+}
+
+.platform_mobile .dcconImageItem {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    padding: 4px;
+}
+
+.platform_mobile .dcconImageItem .dccon-wrapper {
+    width: min(80px, 100%) !important;
+    height: auto !important;
+    aspect-ratio: 1;
+}
 
 .loader:after {
     left: 0;
@@ -462,5 +499,7 @@
 }
 
 @keyframes spin {
-    from { transform: rotate(360deg); }
+    from {
+        transform: rotate(360deg);
+    }
 }

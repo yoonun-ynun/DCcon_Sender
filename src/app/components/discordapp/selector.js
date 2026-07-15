@@ -27,6 +27,7 @@ import { useDcconSync } from '@/store/queryList.js';
  * @typedef {Object} Getters
  * @property {() => Promise<{ok: boolean, guilds: {id: string, name: string}[], reason: string}>} getGuilds
  * @property {() => Promise<{discordId: string, name: string, image: string}>} getSession
+ * @property {(() => Promise<{list: unknown[]}>) | undefined} getRegisteredList
  * @property {(id:string, channel:string) => Promise<{ok: boolean, reason: string}>} send
  */
 
@@ -73,7 +74,10 @@ export default function Selector({ discordId, getters, tops, channelId }) {
         List: storedRegisteredList,
         data: storedRegisteredData,
         update: updateRegisteredItem,
-    } = useDcconSync();
+    } = useDcconSync({
+        getRegisteredList: getters?.getRegisteredList,
+        cacheKey: discordId,
+    });
     const [msg, setMsg] = useState('');
     const [registeredInfo, setRegisteredInfo] = useState(/** @type {DcconSummary[]} */ ([]));
     const [selectedInfo, setSelectedInfo] = useState(/** @type {DcconList | null} */ (null));
