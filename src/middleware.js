@@ -1,5 +1,7 @@
 export { auth as middleware } from '@/auth';
 
 export const config = {
-    matcher: ['/((?!api/(?:img|info)(?:/|$)|_next/static|_next/image|favicon.ico).*)'],
+    matcher: [
+        '/((?!sender(?:/|$)|api/(?:img|info|controller|top)(?:/|$)|_next/static|_next/image|favicon.ico).*)',
+    ],
 };

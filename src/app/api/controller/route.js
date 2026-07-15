@@ -26,13 +26,11 @@ function normalizeList(items) {
     return list;
 }
 
-async function getUserId(req) {
+async function getUserId() {
     const session = await auth();
-    const { searchParams } = new URL(req.url);
-    const requestedUserId = searchParams.get('userId');
     return {
         session,
-        userId: session?.user?.discordId ?? requestedUserId,
+        userId: session?.user?.discordId,
     };
 }
 
@@ -122,9 +120,9 @@ export async function POST(req) {
     return NextResponse.json({ isExist, success: true });
 }
 
-export async function GET(req) {
-    const { session, userId } = await getUserId(req);
-    if (!session && !userId) {
+export async function GET() {
+    const { session, userId } = await getUserId();
+    if (!session) {
         return NextResponse.json(
             { success: false, message: '로그인을 먼저 해주세요' },
             { status: 401 },
@@ -139,7 +137,10 @@ export async function GET(req) {
 
     await connectDB();
     const result = await User.findOne({ user_id: userId }, { _id: 0, list: 1 }).lean();
-    return NextResponse.json({ list: normalizeList(result?.list) });
+    return NextResponse.json(
+        { userId, list: normalizeList(result?.list) },
+        { headers: { 'Cache-Control': 'no-store' } },
+    );
 }
 
 export async function DELETE(req) {

@@ -1,21 +1,31 @@
 'use client';
 
 import Selector from '@/app/components/discordapp/selector.js';
-import { getSession } from 'next-auth/react';
 import Channels from '../components/discordapp/channels.js';
 import PipReady from './PipReady.js';
 import { useEffect, useMemo, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 const EMPTY_TOPS = { day: [], week: [], month: [] };
 
-export default function Load({ session }) {
+function ChannelShell() {
+    return (
+        <div id="selectorList">
+            <select className="selector" defaultValue="" disabled aria-label="서버 선택">
+                <option value="">서버를 선택 해 주세요</option>
+            </select>
+            <select className="selector" defaultValue="" disabled aria-label="채널 선택">
+                <option value="">채널을 선택 해 주세요</option>
+            </select>
+        </div>
+    );
+}
+
+export default function Load() {
+    const { status: sessionStatus } = useSession();
     const [tops, setTops] = useState(EMPTY_TOPS);
     const getters = useMemo(
         () => ({
-            getSession: async () => {
-                const session = await getSession();
-                return session?.user;
-            },
             getGuilds: async () => {
                 const guilds = await fetch('/api/embed/guilds', {
                     method: 'POST',
@@ -37,6 +47,12 @@ export default function Load({ session }) {
         }),
         [],
     );
+
+    useEffect(() => {
+        if (sessionStatus === 'unauthenticated') {
+            window.location.replace('/api/sender');
+        }
+    }, [sessionStatus]);
 
     useEffect(() => {
         let cancelled = false;
@@ -65,11 +81,19 @@ export default function Load({ session }) {
         };
     }, []);
 
+    if (sessionStatus === 'unauthenticated') {
+        return <PipReady />;
+    }
+
     return (
         <div>
             <PipReady />
-            <Channels getters={/** @type {Getters | null} */ getters} />
-            <Selector discordId={session.user.discordId} tops={tops} getters={getters}></Selector>
+            {sessionStatus === 'authenticated' ? (
+                <Channels getters={/** @type {Getters | null} */ getters} />
+            ) : (
+                <ChannelShell />
+            )}
+            <Selector tops={tops} getters={getters}></Selector>
         </div>
     );
 }

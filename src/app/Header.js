@@ -1,20 +1,45 @@
 'use client';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { warmDcconImagesInBrowser } from '@/lib/clientImagePreload.js';
+import { storeList } from '@/store/storeList.js';
 
 export default function Header() {
     const { data: session } = useSession();
     const router = useRouter();
+    const senderDocumentPrefetchRef = useRef(null);
+    const registeredList = storeList((state) => state.List);
+    const registeredData = storeList((state) => state.data);
 
     const prefetchSender = useCallback(() => {
         router.prefetch('/sender');
         void import('@/app/sender/frame.js').catch(() => {});
+
+        if (!senderDocumentPrefetchRef.current) {
+            const request = fetch('/sender', { cache: 'force-cache' })
+                .then((response) => response.arrayBuffer())
+                .catch(() => {
+                    if (senderDocumentPrefetchRef.current === request) {
+                        senderDocumentPrefetchRef.current = null;
+                    }
+                });
+            senderDocumentPrefetchRef.current = request;
+        }
     }, [router]);
 
     useEffect(() => {
-        if (session) prefetchSender();
-    }, [prefetchSender, session]);
+        const discordId = session?.user?.discordId;
+        if (!discordId) return;
+
+        prefetchSender();
+    }, [prefetchSender, session?.user?.discordId]);
+
+    useEffect(() => {
+        if (!session?.user?.discordId) return;
+
+        warmDcconImagesInBrowser(registeredList.map((idx) => ({ url: registeredData[idx]?.url })));
+    }, [registeredData, registeredList, session?.user?.discordId]);
 
     async function openPIP() {
         const senderUrl = new URL('/sender', window.location.origin).toString();

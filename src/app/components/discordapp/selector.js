@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from '@/app/components/info/Image.js';
 import './style.css';
 import List from '@/app/components/discordapp/list.js';
+import { warmDcconImagesInBrowser } from '@/lib/clientImagePreload.js';
+import { useDcconSync } from '@/store/queryList.js';
 
 /**
  * @typedef {Object} DcconList
@@ -59,7 +61,7 @@ function normalizeRegisteredItem(item, popularByIdx) {
 }
 
 /**
- * @param {string} discordId
+ * @param {string | undefined} discordId
  * @param {Getters} getters
  * @param {{day: DCconInfo[], week: DCconInfo[], month: DCconInfo[]}} tops
  * @param {{id: string, name: string} | undefined} channelId
@@ -67,94 +69,62 @@ function normalizeRegisteredItem(item, popularByIdx) {
  * @constructor
  */
 export default function Selector({ discordId, getters, tops, channelId }) {
+    const {
+        List: storedRegisteredList,
+        data: storedRegisteredData,
+        update: updateRegisteredItem,
+    } = useDcconSync();
     const [msg, setMsg] = useState('');
-    const [listInfo, setListInfo] = useState(/** @type {DcconSummary[]} */ ([]));
+    const [registeredInfo, setRegisteredInfo] = useState(/** @type {DcconSummary[]} */ ([]));
     const [selectedInfo, setSelectedInfo] = useState(/** @type {DcconList | null} */ (null));
     const [isInfoLoading, setIsInfoLoading] = useState(false);
     const [mode, setMode] = useState('registered');
     const [selected, setSelected] = useState(/** @type {string | null} */ (null));
     const infoAbortRef = useRef(/** @type {AbortController | null} */ (null));
     const infoCacheRef = useRef(/** @type {Map<string, DcconList>} */ (new Map()));
-    const registeredListCacheRef = useRef(/** @type {Map<string, DcconSummary[]>} */ (new Map()));
+
+    const popularByIdx = useMemo(() => {
+        const popularItems = [...(tops.day ?? []), ...(tops.week ?? []), ...(tops.month ?? [])];
+        return new Map(popularItems.map((item) => [String(item.package_idx), item]));
+    }, [tops]);
+
+    const listInfo = useMemo(() => {
+        if (mode === 'registered') {
+            return registeredInfo
+                .map((item) => normalizeRegisteredItem(item, popularByIdx))
+                .filter(Boolean);
+        }
+
+        const target = mode === 'month' ? tops.month : mode === 'week' ? tops.week : tops.day;
+        return (target ?? []).map((item) => ({
+            idx: String(item.package_idx),
+            img: item.img,
+            title: item.title,
+        }));
+    }, [mode, popularByIdx, registeredInfo, tops]);
 
     useEffect(() => {
-        let cancelled = false;
         infoAbortRef.current?.abort();
         setSelected(null);
         setSelectedInfo(null);
         setIsInfoLoading(false);
         setMsg('');
 
-        const popularItems = [...(tops.day ?? []), ...(tops.week ?? []), ...(tops.month ?? [])];
-        const popularByIdx = new Map(popularItems.map((item) => [String(item.package_idx), item]));
-
-        async function loadList() {
-            if (mode !== 'registered') {
-                const target =
-                    mode === 'month' ? tops.month : mode === 'week' ? tops.week : tops.day;
-                if (!target) {
-                    setListInfo([]);
-                    setMsg('인기 디시콘 정보를 찾을 수 없습니다.');
-                    return;
-                }
-
-                setListInfo(
-                    target.map((item) => ({
-                        idx: String(item.package_idx),
-                        img: item.img,
-                        title: item.title,
-                    })),
-                );
-                return;
-            }
-
-            if (!discordId) {
-                setListInfo([]);
-                setMsg('사용자 정보를 찾을 수 없습니다.');
-                return;
-            }
-
-            const cachedList = registeredListCacheRef.current.get(discordId);
-            if (cachedList) {
-                const refreshedList = cachedList
-                    .map((item) => normalizeRegisteredItem(item, popularByIdx))
-                    .filter(Boolean);
-                registeredListCacheRef.current.set(discordId, refreshedList);
-                setListInfo(refreshedList);
-                return;
-            }
-
-            try {
-                const listRes = await fetch(
-                    `/api/controller?userId=${encodeURIComponent(discordId)}`,
-                );
-                if (!listRes.ok) {
-                    throw new Error('Failed to load registered DCcon list');
-                }
-
-                const list = (await listRes.json()).list ?? [];
-                const normalizedList = list
-                    .map((item) => normalizeRegisteredItem(item, popularByIdx))
-                    .filter(Boolean);
-                registeredListCacheRef.current.set(discordId, normalizedList);
-                if (cancelled) return;
-
-                setListInfo(normalizedList);
-            } catch (error) {
-                if (cancelled) return;
-                console.error(error);
-                setListInfo([]);
-                setMsg('등록된 디시콘 목록을 불러오는 도중 오류가 발생하였습니다.');
-            }
-        }
-
-        loadList();
-
         return () => {
-            cancelled = true;
             infoAbortRef.current?.abort();
         };
-    }, [discordId, mode, tops]);
+    }, [discordId, mode]);
+
+    useEffect(() => {
+        const nextList = storedRegisteredList.map((idx) => ({
+            idx,
+            img: storedRegisteredData[idx]?.url ?? '',
+            title: storedRegisteredData[idx]?.name,
+        }));
+
+        setRegisteredInfo(nextList);
+        warmDcconImagesInBrowser(nextList);
+    }, [storedRegisteredData, storedRegisteredList]);
 
     async function setSelect(item) {
         infoAbortRef.current?.abort();
@@ -190,24 +160,15 @@ export default function Selector({ discordId, getters, tops, channelId }) {
 
             infoCacheRef.current.set(item.idx, info);
             setSelectedInfo(info);
-            if (!item.img && info.main_img) {
-                setListInfo((current) => {
-                    const nextList = current.map((entry) =>
-                        entry.idx === item.idx ? { ...entry, img: info.main_img } : entry,
-                    );
-                    if (mode === 'registered' && discordId) {
-                        registeredListCacheRef.current.set(discordId, nextList);
-                    }
-                    return nextList;
-                });
+            if (!item.img && info.main_img && mode === 'registered') {
+                updateRegisteredItem(item.idx, item.title || info.title, info.main_img);
+                warmDcconImagesInBrowser([{ img: info.main_img }]);
 
-                if (mode === 'registered') {
-                    fetch('/api/controller', {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idx: item.idx, img: info.main_img }),
-                    }).catch((error) => console.error('Failed to migrate DCcon image', error));
-                }
+                fetch('/api/controller', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idx: item.idx, img: info.main_img }),
+                }).catch((error) => console.error('Failed to migrate DCcon image', error));
             }
         } catch (error) {
             if (error.name === 'AbortError') return;

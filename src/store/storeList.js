@@ -17,6 +17,21 @@ export const storeList = create(
                 });
                 fetchAdd(idx, url);
             },
+            update: (idx, name, url) =>
+                set((state) => {
+                    if (!state.List.includes(idx)) return state;
+
+                    const current = state.data[idx] ?? {};
+                    return {
+                        data: {
+                            ...state.data,
+                            [idx]: {
+                                name: name ?? current.name ?? '',
+                                url: url ?? current.url ?? '',
+                            },
+                        },
+                    };
+                }),
             remove: (idx) =>
                 set((state) => {
                     const new_List = state.List.filter((item) => item !== idx);
