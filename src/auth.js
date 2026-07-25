@@ -173,7 +173,7 @@ export const { handlers, auth, signIn } = NextAuth({
 
                     refreshToken: account.refresh_token,
 
-                    expiresAt: account.expires_at,
+                    expiresAt: account.expires_at * 1000,
                 };
 
                 return token;
@@ -239,7 +239,7 @@ export const { handlers, auth, signIn } = NextAuth({
              * Embedded 방식으로 로그인한 세션만
              * Discord OAuth 토큰 갱신 처리
              */
-            if (token.authType !== 'discord-embedded') {
+            if (token.authType !== 'discord-embedded' && token.authType !== 'discord-oauth') {
                 return token;
             }
 

@@ -43,7 +43,7 @@ export default function Image({ src, alt, wrapperClassName = '', width, height }
                 height,
             }}
         >
-            <div className="dccon-bg" style={{ opacity: loaded ? 0 : 1 }}>
+            <div className="dccon-bg" style={{ opacity: loaded ? 1 : 0 }}>
                 <NextImage
                     ref={imgRef}
                     src={imageSrc}
