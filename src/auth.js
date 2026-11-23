@@ -38,6 +38,7 @@ export const { handlers, auth, signIn } = NextAuth({
                     scope: 'identify email guilds',
                 },
             },
+            issuer: 'https://discord.com',
         }),
 
         /*

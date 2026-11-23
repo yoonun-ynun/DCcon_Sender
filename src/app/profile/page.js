@@ -79,7 +79,7 @@ export default function Page() {
 function Profile({ discordId, img, name }) {
     return (
         <div className={styles.profileWrapper}>
-            <Image className={styles.profileImg} src={img} alt={`${name}'s profile image`} />
+            <img className={styles.profileImg} src={img} alt={`${name}'s profile image`} />
             <div className={styles.profileInfo}>
                 <h2>{name}</h2>
                 <p>ID: {discordId}</p>

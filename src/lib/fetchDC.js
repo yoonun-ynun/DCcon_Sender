@@ -1,5 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { getCachedDcconTop } from '@/lib/dcconTopCache';
+import { get_ci, set_ci, ensure_ci } from './saveCi.js';
 
 const TOP_URLS = {
     day: 'https://json2.dcinside.com/json1/dccon_day_top100.php',
@@ -125,17 +126,59 @@ export async function search(text, mode) {
 
 export async function dccon_info(pkg_number) {
     const data = {};
+    const USER_AGENT =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+    const ci = await ensure_ci(async () => {
+        const get_identify = await fetch('https://dccon.dcinside.com/', {
+            headers: {
+                'User-Agent': USER_AGENT,
+                Referer: 'https://dccon.dcinside.com/',
+            },
+            cache: 'no-store',
+        });
+        const rawCookies = get_identify.headers.getSetCookie();
+        console.log(rawCookies);
+        const ci_cookie = rawCookies.find((value) => value.startsWith('ci_c='));
+        if (!ci_cookie) {
+            throw new Error('Failed to obtain ci_c cookie');
+        }
+        const ci_list = ci_cookie.split('; ');
+        /**
+         * @type {{'ci_c': string; 'expires': string; 'Max-Age': string}}
+         */
+        const ci_ob = Object.fromEntries(
+            ci_list.map((item) => {
+                const idx = item.indexOf('=');
+                return idx === -1 ? [item, ''] : [item.slice(0, idx), item.slice(idx + 1)];
+            }),
+        );
 
-    const body = new FormData();
-    body.append('package_idx', pkg_number);
+        const token = ci_ob['ci_c'];
+        const date = new Date(ci_ob['expires']);
+        set_ci(token, date, Number(ci_ob['Max-Age']));
+        return token;
+    });
+
+    const body = new URLSearchParams({
+        package_idx: String(pkg_number),
+        ci_t: ci,
+        code: '',
+        inspection_state: '',
+    });
+    console.log(ci);
 
     const stream = await fetch('https://dccon.dcinside.com/index/package_detail', {
         method: 'POST',
         headers: {
             'x-requested-with': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             referer: 'https://dccon.dcinside.com/index/package_list',
+            'User-Agent': USER_AGENT,
+            Origin: 'https://dccon.dcinside.com',
+            Referer: 'https://dccon.dcinside.com/index/package_list',
+            cookie: `ci_c=${ci}`,
         },
-        body: body,
+        body: body.toString(),
         cache: 'no-store',
     });
     if (!stream.ok) {
